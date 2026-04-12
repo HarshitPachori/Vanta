@@ -105,48 +105,29 @@
 
 ## High-level design (HLD)
 ```mermaid
-subgraph API_Endpoints [API Routes]
-    direction TB
-    Workers --- Auth[/auth/* OAuth flow]
-    Workers --- Scan[/api/scan trigger scan]
-    Workers --- Senders[/api/senders filter senders]
-    Workers --- Unsub[/api/unsubscribe exec unsub]
-    Workers --- Digest[/api/digest manage digest]
-    Workers --- Billing[/api/billing Stripe portal]
-    Workers --- Webhook[/webhooks/stripe subscription]
-end
+flowchart TD
+    User(["User (browser)"])
 
-Workers --> D1[(Cloudflare D1 SQLite)]
+    Pages["Cloudflare Pages\nReact frontend"]
 
-subgraph Database [D1 Tables]
-    direction TB
-    D1 --- T1[users]
-    D1 --- T2[senders]
-    D1 --- T3[unsub_jobs]
-    D1 --- T4[digests]
-    D1 --- T5[subscriptions]
-end
+    Workers["Cloudflare Workers — Hono API\n/auth/*  · /api/scan  · /api/senders\n/api/unsubscribe  · /api/digest\n/api/billing  · /webhooks/stripe"]
 
-Workers --> Queues[Cloudflare Queues]
+    D1[("Cloudflare D1\nusers · senders\nunsub_jobs · digests\nsubscriptions")]
 
-subgraph Queue_Jobs [Queues]
-    direction TB
-    Queues --- Q1[scan_queue]
-    Queues --- Q2[unsub_queue]
-    Queues --- Q3[digest_queue]
-end
+    Queues["Cloudflare Queues\nscan_queue\nunsub_queue\ndigest_queue"]
 
-Queues -- consumed by --> Consumers[Cloudflare Workers Consumers]
+    Consumers["Cloudflare Workers — consumers\nscan_worker\nunsub_worker\ndigest_worker"]
 
-subgraph Consumer_Logic [Worker Logic]
-    direction TB
-    Consumers --- W1[scan_worker]
-    Consumers --- W2[unsub_worker]
-    Consumers --- W3[digest_worker]
-end
+    Gmail["Gmail API\n(Google)"]
+    Resend["Resend\n(digest delivery)"]
 
-W1 & W2 & W3 --> Gmail[Gmail API Google]
-W3 --> Resend[Resend Digest Delivery]
+    User -->|HTTPS| Pages
+    Pages -->|REST API calls| Workers
+    Workers -->|read / write| D1
+    Workers -->|enqueue jobs| Queues
+    Queues -->|consumed by| Consumers
+    Consumers -->|fetch & modify email| Gmail
+    Consumers -->|send digest| Resend
 ```
 
 ### External services:
