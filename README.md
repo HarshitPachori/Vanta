@@ -2,14 +2,14 @@
 
 ## Product definition
 
-Inbox cleaner + digest rebuilder — a web app that connects to a user's Gmail via OAuth, detects unwanted senders and newsletters, enables bulk unsubscribe, and rebuilds selected senders into one clean daily digest email.
+**Inbox cleaner** + **digest rebuilder** – a web app that connects to a user's Gmail via OAuth, detects unwanted senders and newsletters, enables bulk unsubscribe, and rebuilds selected senders into one clean daily digest email.
 
 ## Functional requirements
 
 ### Authentication
 
 - User signs up/logs in via Google OAuth
-- App requests gmail.readonly + gmail.modify scopes
+- App requests **gmail.readonly** + **gmail.modify** scopes
 - Refresh token stored securely for background processing
 - User can revoke access and delete all their data
 
@@ -19,14 +19,14 @@ Inbox cleaner + digest rebuilder — a web app that connects to a user's Gmail v
 - Identify newsletters, promotional senders, subscription emails
 - Detect unsubscribe links (List-Unsubscribe header + body scan)
 - Group emails by sender with count, last received date, estimated monthly volume
-- Categorize senders: newsletter, promotional, transactional, cold outreach, social notification
+- **Categorize senders:** newsletter, promotional, transactional, cold outreach, social notification
 
 ### Unsubscribe
 
 - One-click unsubscribe per sender
 - Bulk unsubscribe selected senders
-- Unsubscribe methods in priority order: List-Unsubscribe header → unsubscribe link click → auto-draft unsubscribe email
-- Show unsubscribe status: pending, done, failed
+- **Unsubscribe methods in priority order:** List-Unsubscribe header → unsubscribe link click → auto-draft unsubscribe email
+- **Show unsubscribe status:** pending, done, failed
 - For senders without unsubscribe — option to auto-archive or auto-delete future emails via Gmail filter
 
 ### Digest rebuilder
@@ -40,21 +40,21 @@ Inbox cleaner + digest rebuilder — a web app that connects to a user's Gmail v
 
 ### Dashboard
 
-- Overview: inbox health score, unsubscribed count, emails blocked this week, digest stats
+- **Overview:** inbox health score, unsubscribed count, emails blocked this week, digest stats
 - Sender list with filters (category, volume, status)
 - Digest management UI
-- Account settings: connected account, billing, data deletion
+- **Account settings:** connected account, billing, data deletion
 
 ### Billing
 
-- Free tier: 25 unsubscribes, no digest
-- Paid ($6/month): unlimited unsubscribes + digest feature
+- **Free tier:** 25 unsubscribes, no digest
+- Paid ($6/month):** unlimited unsubscribes + digest feature
 - Stripe checkout + customer portal
 - Webhook handling for subscription lifecycle
 
 ### Notifications
 
-- Weekly email summary: how many emails blocked, digest stats
+- **Weekly email summary:** how many emails blocked, digest stats
 - Alert if Gmail token expires or access revoked
 
 ## Non-functional requirements
@@ -79,7 +79,7 @@ Inbox cleaner + digest rebuilder — a web app that connects to a user's Gmail v
 
 - Minimum data principle — store sender metadata, not email content
 - User data fully deletable on request (GDPR Article 17)
-- Clear privacy policy: what is read, what is stored, what is never stored
+- **Clear privacy policy:** what is read, what is stored, what is never stored
 - No selling or sharing user data
 - Google OAuth app verification required before launch
 
@@ -307,9 +307,9 @@ gmail.modify is a restricted scope. Google requires a security assessment by a t
 
 #### Cloudflare Workers limitations
 
-- CPU time: 10ms free / 50ms paid — fine for API routes, not fine for heavy scanning. - Scan and digest workers need to be separate Workers triggered by queues, not the API worker itself.
+- **CPU time:** 10ms free / 50ms paid — fine for API routes, not fine for heavy scanning. - Scan and digest workers need to be separate Workers triggered by queues, not the API worker itself.
 - D1 is SQLite — no full-text search, no array columns, limited concurrent writes. - For your schema this is fine.
-- Queues: Cloudflare Queues are in GA, free tier includes 1M deliveries/month — enough to start.
+- **Queues:** Cloudflare Queues are in GA, free tier includes 1M deliveries/month — enough to start.
 
 #### Data privacy architecture
 
