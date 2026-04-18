@@ -25,6 +25,7 @@
     "types": ["./cloudflare-env.d.ts", "node"]
   },
   "include": [
+    "**/*.css",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

@@ -50,3 +50,6 @@ next-env.d.ts
 
 
 !.dev.vars.example
+CLAUDE.original.md
+example_prompt_less_token.md
+master_prompt_library.md

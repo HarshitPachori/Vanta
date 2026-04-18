@@ -3,26 +3,60 @@
 // Runtime types generated with workerd@1.20260409.1 2026-04-12 global_fetch_strictly_public,nodejs_compat
 declare namespace Cloudflare {
   interface DevEnv {
-    ENVIRONMENT: string;
+    // D1 DB binding
     DB: D1Database;
+
+    // Queue
+    SCAN_QUEUE: Queue;
+    UNSUB_QUEUE: Queue;
+    DIGEST_QUEUE: Queue;
+
+    // Environment
+    ENVIRONMENT: "DEV" | "PROD";
+    CLIENT_BASE_URI: string;
+
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
-    MAILGUN_API_KEY: string;
-    MAILGUN_DOMAIN: string;
-    CLIENT_BASE_URI: string;
+
+    AUTH_JWT_SECRET: string;
+    INVITE_JWT_SECRET: string;
+
+    STRIPE_SECRET_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+
+    RESEND_API_KEY: string;
+    RESEND_FROM_EMAIL: string;
+
     IMAGES: ImagesBinding;
     ASSETS: Fetcher;
     NEXTJS_ENV: string;
     WORKER_SELF_REFERENCE: Fetcher /* vanta */;
   }
   interface ProdEnv {
-    ENVIRONMENT: string;
+    // D1 DB binding
     DB: D1Database;
+
+    // Queue
+    SCAN_QUEUE: Queue;
+    UNSUB_QUEUE: Queue;
+    DIGEST_QUEUE: Queue;
+
+    // Environment
+    ENVIRONMENT: "DEV" | "PROD";
+    CLIENT_BASE_URI: string;
+
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
-    MAILGUN_API_KEY: string;
-    MAILGUN_DOMAIN: string;
-    CLIENT_BASE_URI: string;
+
+    AUTH_JWT_SECRET: string;
+    INVITE_JWT_SECRET: string;
+
+    STRIPE_SECRET_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+
+    RESEND_API_KEY: string;
+    RESEND_FROM_EMAIL: string;
+
     IMAGES: ImagesBinding;
     ASSETS: Fetcher;
     NEXTJS_ENV: string;
@@ -30,19 +64,66 @@ declare namespace Cloudflare {
   }
   interface Env {
     ENVIRONMENT: string;
+    // D1 DB binding
     DB: D1Database;
+
+    // Queue
+    SCAN_QUEUE: Queue;
+    UNSUB_QUEUE: Queue;
+    DIGEST_QUEUE: Queue;
+
+    // Environment
+    ENVIRONMENT: "DEV" | "PROD";
+    CLIENT_BASE_URI: string;
+
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
-    MAILGUN_API_KEY: string;
-    MAILGUN_DOMAIN: string;
-    CLIENT_BASE_URI: string;
+
+    AUTH_JWT_SECRET: string;
+    INVITE_JWT_SECRET: string;
+
+    STRIPE_SECRET_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+
+    RESEND_API_KEY: string;
+    RESEND_FROM_EMAIL: string;
+
     IMAGES: ImagesBinding;
     ASSETS: Fetcher;
     NEXTJS_ENV: string;
     WORKER_SELF_REFERENCE: Fetcher /* vanta */;
   }
 }
-interface CloudflareEnv extends Cloudflare.Env {}
+interface CloudflareEnv extends Cloudflare.Env {
+  // D1 DB binding
+  DB: D1Database;
+
+  // Queue
+  SCAN_QUEUE: Queue;
+  UNSUB_QUEUE: Queue;
+  DIGEST_QUEUE: Queue;
+
+  // Environment
+  ENVIRONMENT: "DEV" | "PROD";
+  CLIENT_BASE_URI: string;
+
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+
+  AUTH_JWT_SECRET: string;
+  INVITE_JWT_SECRET: string;
+
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+
+  RESEND_API_KEY: string;
+  RESEND_FROM_EMAIL: string;
+
+  IMAGES: ImagesBinding;
+  ASSETS: Fetcher;
+  NEXTJS_ENV: string;
+  WORKER_SELF_REFERENCE: Fetcher /* vanta */;
+}
 type StringifyValues<EnvType extends Record<string, unknown>> = {
   [Binding in keyof EnvType]: EnvType[Binding] extends string
     ? EnvType[Binding]
