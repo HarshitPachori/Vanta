@@ -1,10 +1,6 @@
+import { bricolage, dmSans, geistMono } from "@/lib/fonts";
 import type { Metadata, Viewport } from "next";
-import { inter, jetbrainsMono } from "@/lib/fonts";
-import "@/app/globals.css";
-import { Inter } from "next/font/google";
-import { cn } from "@/lib/utils";
-
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+import "./globals.css";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://vanta.app";
 
@@ -89,16 +85,16 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html
       lang="en"
-      className={cn(jetbrainsMono.variable, "font-sans", inter.variable)}
-      suppressHydrationWarning>
-      <body className="antialiased min-h-dvh bg-[var(--color-base)] text-[var(--color-text-primary)] font-sans">
+      className={`${bricolage.variable} ${dmSans.variable} ${geistMono.variable}`}
+    >
+      <body className="antialiased min-h-dvh bg-(--color-base) text-(--color-text-primary) font-sans">
         {children}
       </body>
     </html>
-  );
+  )
 }

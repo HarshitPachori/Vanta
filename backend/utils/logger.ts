@@ -1,4 +1,4 @@
-import { CustomError } from "./error";
+import { CustomError } from "@backend/utils/error";
 
 type LogData = Record<string, unknown>;
 
