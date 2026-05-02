@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vanta",
-  "main": ".open-next/worker.js",
+  "main": "./worker.ts",
   "compatibility_date": "2026-04-12",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
@@ -11,33 +11,10 @@
   "images": {
     "binding": "IMAGES",
   },
-  // "env":{
-  // 	"dev":{
-  // 		"name":"vanta-dev",
-  // 		"services": [
-  // 			{
-  // 			"binding": "WORKER_SELF_REFERENCE",
-  // 		"service": "vanta-dev"
-  // 			},
-  // 		],
-  // 		"routes": [],
-  // 		"vars": {},
-  // 		"d1_databases": [],
-  // 		"r2_buckets": [],
-  // 		"kv_namespaces": [],
-  // 		"queues": {
-  // 			"consumers": [],
-  // 			"producers": []
-  // 		},
-  // 		"triggers": {
-  // 			"crons": []
-  // 		},
-  // 		"durable_objects": {
-  // 			"bindings": []
-  // 		},
-
-  // 	}
-  // },
+  "observability": {
+    "enabled": true,
+  },
+  "upload_source_maps": true,
 
   "env": {
     "dev": {
@@ -48,26 +25,52 @@
           "service": "vanta-dev",
         },
       ],
-      // "routes": [
-      // 	{
-      // 		"pattern": "dev.vanta.com",
-      // 		"custom_domain": true
-      // 	}
-      // ],
       "vars": {
-        "ENVIRONMENT": "dev",
-        "MAILGUN_DOMAIN": "https://harshitpachoriportfolio.vercel.app",
-        "EMAIL_FROM_ADDRESS": "harshitpachori345@gmail.com",
+        "ENVIRONMENT": "DEV",
+        "CLIENT_BASE_URI": "http://localhost:8787",
+        "RESEND_FROM_EMAIL": "onboarding@resend.dev",
+        "NEXTJS_ENV": "development",
       },
       "d1_databases": [
         {
           "binding": "DB",
           "database_name": "vanta-dev",
-          "database_id": "",
+          "database_id": "YOUR_DEV_D1_ID",
           "migrations_dir": "./backend/db/migrations",
         },
       ],
+      "triggers": {
+        "crons": ["*/15 * * * *"],
+      },
+      "queues": {
+        "producers": [
+          { "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-dev" },
+          { "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-dev" },
+          { "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-dev" },
+        ],
+        "consumers": [
+          {
+            "queue": "vanta-scan-queue-dev",
+            "max_batch_size": 10,
+            "max_batch_timeout": 30,
+            "max_retries": 3,
+          },
+          {
+            "queue": "vanta-unsub-queue-dev",
+            "max_batch_size": 10,
+            "max_batch_timeout": 30,
+            "max_retries": 3,
+          },
+          {
+            "queue": "vanta-digest-queue-dev",
+            "max_batch_size": 5,
+            "max_batch_timeout": 60,
+            "max_retries": 3,
+          },
+        ],
+      },
     },
+
     "prod": {
       "name": "vanta-prod",
       "services": [
@@ -76,30 +79,50 @@
           "service": "vanta-prod",
         },
       ],
-      // "routes": [
-      // 	{
-      // 		"pattern": "dev.vanta.com",
-      // 		"custom_domain": true
-      // 	}
-      // ],
       "vars": {
-        "ENVIRONMENT": "prod",
-        "MAILGUN_DOMAIN": "https://harshitpachoriportfolio.vercel.app",
-        "EMAIL_FROM_ADDRESS": "harshitpachori345@gmail.com",
+        "ENVIRONMENT": "PROD",
+        "CLIENT_BASE_URI": "https://vanta.app",
+        "RESEND_FROM_EMAIL": "hello@vanta.app",
+        "NEXTJS_ENV": "production",
       },
       "d1_databases": [
         {
           "binding": "DB",
           "database_name": "vanta-prod",
-          "database_id": "",
+          "database_id": "YOUR_PROD_D1_ID",
           "migrations_dir": "./backend/db/migrations",
         },
       ],
+      "triggers": {
+        "crons": ["*/15 * * * *"],
+      },
+      "queues": {
+        "producers": [
+          { "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-prod" },
+          { "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-prod" },
+          { "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-prod" },
+        ],
+        "consumers": [
+          {
+            "queue": "vanta-scan-queue-prod",
+            "max_batch_size": 10,
+            "max_batch_timeout": 30,
+            "max_retries": 3,
+          },
+          {
+            "queue": "vanta-unsub-queue-prod",
+            "max_batch_size": 10,
+            "max_batch_timeout": 30,
+            "max_retries": 3,
+          },
+          {
+            "queue": "vanta-digest-queue-prod",
+            "max_batch_size": 5,
+            "max_batch_timeout": 60,
+            "max_retries": 3,
+          },
+        ],
+      },
     },
   },
-
-  "observability": {
-    "enabled": true,
-  },
-  "upload_source_maps": true,
 }

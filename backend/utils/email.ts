@@ -1,4 +1,4 @@
-import logger from "./logger";
+import logger from "@backend/utils/logger";
 
 export interface SendEmailParams {
   from: string;
