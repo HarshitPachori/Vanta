@@ -14,7 +14,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --env dev --local",
-    "db:migrate:remote": "wrangler d1 migrations apply DB --rmeote --env prod",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --env prod",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --env dev --local",

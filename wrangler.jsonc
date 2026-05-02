@@ -35,7 +35,7 @@
         {
           "binding": "DB",
           "database_name": "vanta-dev",
-          "database_id": "YOUR_DEV_D1_ID",
+          "database_id": "a3f19b43-8393-41c8-8dce-edbdfa857bd4",
           "migrations_dir": "./backend/db/migrations",
         },
       ],
