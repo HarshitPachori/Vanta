@@ -120,6 +120,7 @@ export const digestQueue = async (
     digestName:  digest.name,
     items,
     deliveryDate,
+    clientBaseUrl: env.CLIENT_BASE_URI
   })
 
   const sent = await sendEmail(

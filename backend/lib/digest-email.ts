@@ -10,6 +10,7 @@ type BuildDigestEmailParams = {
   digestName:  string
   items:       DigestItem[]
   deliveryDate: string
+  clientBaseUrl: string
 }
 
 export const buildDigestEmail = ({
@@ -17,6 +18,7 @@ export const buildDigestEmail = ({
   digestName,
   items,
   deliveryDate,
+  clientBaseUrl
 }: BuildDigestEmailParams): { html: string; text: string } => {
   const greeting = userName ? `Hi ${userName.split(" ")[0]}` : "Hi there"
 
@@ -124,7 +126,7 @@ export const buildDigestEmail = ({
           <tr>
             <td style="padding-top: 32px;">
               <p style="margin: 0; font-family: monospace; font-size: 11px; color: #3F3F46; text-align: center;">
-                Sent by Vanta · <a href=`${clientBaseUri}/dashboard/digest` style="color: #3F3F46;">Manage digest</a>
+                Sent by Vanta · <a href="${clientBaseUrl}/dashboard/digest" style="color: #3F3F46;">Manage digest</a>
               </p>
             </td>
           </tr>
