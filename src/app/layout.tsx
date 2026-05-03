@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   ],
   creator: "Vanta",
   publisher: "Vanta",
+  verification: {
+    google: "03ZQtVOwJ2NDIpFO04v4exgY0F6F7YfVMHJpgySUr9s",
+  },
   robots: {
     index: true,
     follow: true,
