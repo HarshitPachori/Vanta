@@ -1,47 +1,118 @@
-# OpenNext Starter
+# Vanta
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Gmail inbox manager. Connect your Gmail, scan your inbox, identify senders, bulk unsubscribe, and set up digest emails.
 
-## Getting Started
+> **Status:** Early development. Gmail scan and auth are tested. Unsubscribe and digest features are work in progress.
 
-Read the documentation at https://opennext.js.org/cloudflare.
+---
 
-## Develop
+## Tech Stack
 
-Run the Next.js development server:
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 15 (App Router) + Tailwind CSS 4 |
+| Backend | Hono on Cloudflare Workers |
+| Database | Drizzle ORM + Cloudflare D1 (SQLite) |
+| Auth | Custom JWT (jose) + Google OAuth 2.0 |
+| Email | Resend + React Email |
+| Async Jobs | Cloudflare Queues (scan, unsubscribe, digest) |
+| Deployment | OpenNext → Cloudflare Workers |
+
+---
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 20+
+- A Google Cloud project with OAuth 2.0 credentials
+- A Resend account
+
+### Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Copy env template
+cp .example.vars .dev.vars
+# Fill in .dev.vars with your keys
+
+# Apply DB migrations locally
+npm run db:migrate:local
+
+# Start Next.js dev server (port 3000)
 npm run dev
-# or similar package manager command
+
+# OR preview on the real Cloudflare Workers runtime (port 8787)
+npm run preview
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+ENVIRONMENT=DEV
+CLIENT_BASE_URI=http://localhost:3000
+AUTH_JWT_SECRET=<random 32+ char string>
+GOOGLE_CLIENT_ID=<Google Cloud Console>
+GOOGLE_CLIENT_SECRET=<Google Cloud Console>
+RESEND_API_KEY=<Resend dashboard>
+RESEND_FROM_EMAIL=onboarding@resend.dev
+```
 
-## Preview
+D1, Queues, and KV bindings are injected automatically by Wrangler — do not pass them as env vars.
 
-Preview the application locally on the Cloudflare runtime:
+---
+
+## Database
 
 ```bash
-npm run preview
-# or similar package manager command
+# Generate migration after schema changes
+npm run db:generate
+
+# Apply to local D1
+npm run db:migrate:local
+
+# Apply to remote (prod) D1
+npm run db:migrate:remote
 ```
 
-## Deploy
+Schema lives in `backend/db/schema.ts`.
 
-Deploy the application to Cloudflare:
+---
+
+## Project Structure
+
+```
+├── src/                    # Next.js frontend (App Router)
+│   ├── app/(auth)/         # Login, signup, forgot/reset password
+│   ├── app/(dashboard)/    # Dashboard, senders, digest, settings
+│   ├── app/(legal)/        # Privacy policy, terms of service
+│   └── components/
+├── backend/                # Hono API (Cloudflare Workers)
+│   ├── routes/             # One file per feature
+│   ├── workers/            # Queue consumers: scan, unsub, digest
+│   ├── middleware/         # Auth, error handling
+│   ├── lib/                # Gmail, JWT, Resend utils
+│   └── db/                 # Drizzle schema + migrations
+└── worker.ts               # Cloudflare Worker entry point
+```
+
+---
+
+## Deployment
 
 ```bash
 npm run deploy
-# or similar package manager command
 ```
 
-## Learn More
+Builds with OpenNext and deploys to Cloudflare Workers. Requires `wrangler login` or `CLOUDFLARE_API_TOKEN` in the environment.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Adding a New API Route
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create `backend/routes/myfeature.ts`, export a Hono router
+2. Register in `backend/index.ts`: `app.route("/api/myfeature", myRouter)`
+3. Protect with `requireAuth` middleware if needed
+4. Validate input with Zod + `zValidator("json", schema)`
