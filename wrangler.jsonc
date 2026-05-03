@@ -89,7 +89,7 @@
         {
           "binding": "DB",
           "database_name": "vanta-prod",
-          "database_id": "YOUR_PROD_D1_ID",
+          "database_id": "442b6154-0dda-4bde-9103-94f56c29f7f7",
           "migrations_dir": "./backend/db/migrations",
         },
       ],
