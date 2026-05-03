@@ -80,11 +80,11 @@
     },
 
     "prod": {
-      "name": "vanta-prod",
+      "name": "vanta",
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "vanta-prod",
+          "service": "vanta",
         },
       ],
       "vars": {
