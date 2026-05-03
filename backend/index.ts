@@ -9,6 +9,7 @@ import scanRouter from "@backend/routes/scan";
 import sendersRouter from "@backend/routes/senders";
 import accountRouter from "@backend/routes/account";
 import digestRouter from "@backend/routes/digest";
+import sessionsRouter from "@backend/routes/sessions";
 import sseRouter from "@backend/routes/sse";
 import mainRouter from "@backend/routes";
 import { globalErrorHandler } from "@backend/middleware/globalErrorHandler";
@@ -72,6 +73,7 @@ app.route("/api/scan", scanRouter);
 app.route("/api/senders", sendersRouter);
 app.route("/api/account", accountRouter)
 app.route("/api/digest", digestRouter)
+app.route("/api/sessions", sessionsRouter)
 app.route("/api/sse", sseRouter)
 
 app.get("/api/health", (c) => 

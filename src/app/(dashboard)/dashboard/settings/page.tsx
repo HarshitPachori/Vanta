@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import DeleteAccountButton from "@/components/dashboard/delete-account-button";
+import { SessionsList } from "@/components/dashboard/sessions-list";
 import { Button } from "@/components/ui/button";
 import { cardSection, cn, glassAvatar, iconSquare } from "@/lib/cn";
 import { sessions, subscriptions, users } from "@backend/db/schema";
@@ -63,7 +64,25 @@ const getData = async () => {
       .where(eq(subscriptions.userId, user.id))
       .get();
 
-    return { user, sub };
+    const allSessions = await db
+      .select({
+        id: sessions.id,
+        ipAddress: sessions.ipAddress,
+        userAgent: sessions.userAgent,
+        country: sessions.country,
+        city: sessions.city,
+        createdAt: sessions.createdAt,
+      })
+      .from(sessions)
+      .where(and(eq(sessions.userId, user.id), gt(sessions.expiresAt, now)))
+      .all();
+
+    const activeSessions = allSessions.map((s) => ({
+      ...s,
+      isCurrent: s.id === session.id,
+    }));
+
+    return { user, sub, activeSessions };
   } catch {
     return null;
   }
@@ -76,7 +95,7 @@ export default async function SettingsPage({
 }) {
   const data = await getData();
   if (!data) redirect("/login");
-  const { user, sub } = data;
+  const { user, sub, activeSessions } = data;
 
   const { gmail } = await searchParams;
   const gmailJustConnected = gmail === "connected";
@@ -256,6 +275,21 @@ export default async function SettingsPage({
             Read-only access · Zero content stored · Revoke anytime in Google
             Account
           </div>
+        </section>
+
+        {/* Active sessions */}
+        <section
+          aria-labelledby="sessions-heading"
+          className={cn(cardSection, "rounded-xl p-6")}>
+          <h2
+            id="sessions-heading"
+            className="font-display font-bold text-sm text-(--color-text-primary) tracking-tight mb-1">
+            Active sessions
+          </h2>
+          <p className="text-xs text-(--color-text-muted) mb-4">
+            Devices currently signed in to your account.
+          </p>
+          <SessionsList sessions={activeSessions} />
         </section>
 
         {/* Danger zone */}

@@ -113,7 +113,7 @@ export default function PricingSection() {
                   "w-full",
                   plan.highlight && "shadow-(--shadow-glow-sm)",
                 )}>
-                <Link href={plan.href}>
+                <Link href={plan.href} className="flex items-center gap-1">
                   {plan.highlight && <Zap size={14} aria-hidden="true" />}
                   {plan.cta}
                 </Link>

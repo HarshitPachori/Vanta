@@ -7,6 +7,7 @@ import { createMiddleware } from "hono/factory"
 
 type AuthVars = {
   userId: string
+  sessionId: string
   user: typeof users.$inferSelect
 }
 
@@ -48,6 +49,7 @@ export const requireAuth = createMiddleware<{
   if (!user || user.deletedAt) return c.json({ error: "Unauthorized" }, 401)
 
   c.set("userId", user.id)
+  c.set("sessionId", session.id)
   c.set("user", user)
   await next()
 })
