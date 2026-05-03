@@ -1,13 +1,13 @@
 import { sessions, subscriptions, users } from "@backend/db/schema";
 import { getDb } from "@backend/lib/db";
 import { newId, now } from "@backend/lib/id";
-import { signToken } from "@backend/lib/jwt";
+import { signToken, verifyToken } from "@backend/lib/jwt";
 import { hashPassword, verifyPassword } from "@backend/lib/password";
 import { requireAuth } from "@backend/middleware/auth";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
-import { deleteCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
 
 import { passwordResetTokens } from "@backend/db/schema";
@@ -25,10 +25,28 @@ const cookieOpts = (env: string) => ({
   maxAge: SESSION_TTL,
 });
 
+type SessionMeta = {
+  ipAddress?: string | null
+  userAgent?: string | null
+  country?: string | null
+  city?: string | null
+}
+
+const getSessionMeta = (req: Request): SessionMeta => {
+  const cf = (req as unknown as { cf?: Record<string, string> }).cf
+  return {
+    ipAddress: req.headers.get("CF-Connecting-IP") ?? req.headers.get("X-Forwarded-For"),
+    userAgent: req.headers.get("User-Agent"),
+    country: cf?.country ?? null,
+    city: cf?.city ?? null,
+  }
+}
+
 const createSession = async (
   db: ReturnType<typeof getDb>,
   userId: string,
   jwtSecret: string,
+  meta: SessionMeta = {},
 ) => {
   const sessionId = newId();
   const expiresAt = now() + SESSION_TTL;
@@ -37,6 +55,10 @@ const createSession = async (
     userId,
     expiresAt,
     createdAt: now(),
+    ipAddress: meta.ipAddress ?? null,
+    userAgent: meta.userAgent ?? null,
+    country: meta.country ?? null,
+    city: meta.city ?? null,
   });
   return signToken({ sessionId }, jwtSecret, `${SESSION_DAYS}d`);
 };
@@ -99,7 +121,7 @@ auth.post("/signup", zValidator("json", signupSchema), async (c) => {
     updatedAt: ts,
   });
 
-  const token = await createSession(db, userId, c.env.AUTH_JWT_SECRET);
+  const token = await createSession(db, userId, c.env.AUTH_JWT_SECRET, getSessionMeta(c.req.raw));
   setCookie(c, "session", token, cookieOpts(c.env.ENVIRONMENT));
 
   return c.json({ ok: true, redirect: "/onboarding" });
@@ -128,7 +150,7 @@ auth.post("/login", zValidator("json", loginSchema), async (c) => {
     return c.json({ error: "Account not found." }, 404);
   }
 
-  const token = await createSession(db, user.id, c.env.AUTH_JWT_SECRET);
+  const token = await createSession(db, user.id, c.env.AUTH_JWT_SECRET, getSessionMeta(c.req.raw));
   setCookie(c, "session", token, cookieOpts(c.env.ENVIRONMENT));
 
   return c.json({
@@ -390,7 +412,7 @@ auth.get("/google/callback", async (c) => {
     return c.redirect(`${c.env.CLIENT_BASE_URI}/login?error=user_failed`);
   }
 
-  const token = await createSession(db, user.id, c.env.AUTH_JWT_SECRET);
+  const token = await createSession(db, user.id, c.env.AUTH_JWT_SECRET, getSessionMeta(c.req.raw));
   setCookie(c, "session", token, cookieOpts(c.env.ENVIRONMENT));
 
   const scanDone = user.scanStatus === "done" && user.hasGmailAccess;
@@ -429,8 +451,18 @@ auth.get("/google/gmail", requireAuth, (c) => {
 
 // ── Logout ───────────────────────────────────────────────
 auth.post("/logout", async (c) => {
-  deleteCookie(c, "session", { path: "/" });
-  return c.redirect(`${c.env?.CLIENT_BASE_URI ?? ""}/login`);
+  const token = getCookie(c, "session")
+  if (token) {
+    try {
+      const payload = await verifyToken<{ sessionId: string }>(token, c.env.AUTH_JWT_SECRET)
+      if (payload?.sessionId) {
+        const db = getDb(c.env.DB)
+        await db.delete(sessions).where(eq(sessions.id, payload.sessionId))
+      }
+    } catch {}
+  }
+  deleteCookie(c, "session", { path: "/" })
+  return c.redirect(`${c.env?.CLIENT_BASE_URI ?? ""}/login`)
 });
 
 // ── Me ───────────────────────────────────────────────────
