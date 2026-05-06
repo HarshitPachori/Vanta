@@ -11,6 +11,7 @@ import accountRouter from "@backend/routes/account";
 import digestRouter from "@backend/routes/digest";
 import sessionsRouter from "@backend/routes/sessions";
 import sseRouter from "@backend/routes/sse";
+import auditRouter from "@backend/routes/audit";
 import mainRouter from "@backend/routes";
 import { globalErrorHandler } from "@backend/middleware/globalErrorHandler";
 import { rateLimiter } from "hono-rate-limiter"
@@ -75,6 +76,7 @@ app.route("/api/account", accountRouter)
 app.route("/api/digest", digestRouter)
 app.route("/api/sessions", sessionsRouter)
 app.route("/api/sse", sseRouter)
+app.route("/api/audit", auditRouter)
 
 app.get("/api/health", (c) => 
   c.json({ ok: true, environment: c.env?.ENVIRONMENT })

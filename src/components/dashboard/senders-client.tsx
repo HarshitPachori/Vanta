@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo, useTransition } from "react"
+import { useState, useMemo, useTransition, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, Layers, Search, Loader, CheckCircle, Mail } from "lucide-react"
+import { Trash2, Layers, Search, Loader, CheckCircle, Mail, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -15,7 +15,11 @@ import type { Sender } from "@backend/db/schema"
 import EmptyState from "./empty-state"
 import Link from "next/link"
 
-type Props = { initialSenders: Sender[] }
+type InitialJob = { id: string; senderId: string; status: JobStatus }
+type Props = { initialSenders: Sender[]; initialJobs: InitialJob[] }
+
+type JobStatus = "queued" | "processing" | "done" | "failed"
+type JobState  = Record<string, { jobId: string; status: JobStatus }>  // senderId → job
 
 const CATEGORIES = ["all", "newsletter", "promo", "social", "transactional", "cold", "other"] as const
 
@@ -28,14 +32,65 @@ const CATEGORY_PILL: Record<string, string> = {
   other:         pillNeutral,
 }
 
-export default function SendersClient({ initialSenders }: Props) {
-  const [senderList, setSenderList]     = useState(initialSenders)
-  const [selected, setSelected]         = useState<Set<string>>(new Set())
-  const [search, setSearch]             = useState("")
-  const [category, setCategory]         = useState<string>("all")
-  const [pending, startTransition]      = useTransition()
-  const [success, setSuccess]           = useState(false)
+export default function SendersClient({ initialSenders, initialJobs }: Props) {
+  const [senderList, setSenderList]       = useState(initialSenders)
+  const [selected, setSelected]           = useState<Set<string>>(new Set())
+  const [search, setSearch]               = useState("")
+  const [category, setCategory]           = useState<string>("all")
+  const [pending, startTransition]        = useTransition()
   const [digestSuccess, setDigestSuccess] = useState(false)
+  const [jobState, setJobState]           = useState<JobState>(() => {
+    const state: JobState = {}
+    for (const job of initialJobs) {
+      state[job.senderId] = { jobId: job.id, status: job.status }
+    }
+    return state
+  })
+  const pollRef                           = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null }
+  }, [])
+
+  useEffect(() => () => stopPolling(), [stopPolling])
+
+  useEffect(() => {
+    const hasActive = initialJobs.some(j => j.status === "queued" || j.status === "processing")
+    if (hasActive) {
+      pollRef.current = setInterval(() => {
+        setJobState(curr => { pollJobs(curr); return curr })
+      }, 3000)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const pollJobs = useCallback(async (currentJobs: JobState) => {
+    const pending = Object.values(currentJobs).filter(j => j.status === "queued" || j.status === "processing")
+    if (!pending.length) { stopPolling(); return }
+
+    const ids = pending.map(j => j.jobId).join(",")
+    try {
+      const res  = await fetch(`/api/senders/jobs?ids=${ids}`)
+      if (!res.ok) return
+      const data = await res.json() as { jobs: Array<{ id: string; senderId: string; status: JobStatus }> }
+
+      setJobState(prev => {
+        const next = { ...prev }
+        let allDone = true
+        for (const job of data.jobs) {
+          if (next[job.senderId]) {
+            next[job.senderId] = { ...next[job.senderId], status: job.status }
+            if (job.status === "done") {
+              setSenderList(s => s.map(sender => sender.id === job.senderId ? { ...sender, status: "unsubscribed" } : sender))
+            }
+          }
+          if (job.status !== "done" && job.status !== "failed") allDone = false
+        }
+        if (allDone) stopPolling()
+        return next
+      })
+    } catch {}
+  }, [stopPolling])
 
   const filtered = useMemo(() =>
     senderList.filter(s => {
@@ -57,11 +112,15 @@ export default function SendersClient({ initialSenders }: Props) {
     })
   }
 
+  const canSelect = (s: Sender) => s.status !== "unsubscribed" && !!s.unsubscribeUrl
+
+  const selectableFiltered = useMemo(() => filtered.filter(canSelect), [filtered])
+
   const toggleAll = () => {
     setSelected(
-      selected.size === filtered.length
+      selected.size === selectableFiltered.length
         ? new Set()
-        : new Set(filtered.map(s => s.id))
+        : new Set(selectableFiltered.map(s => s.id))
     )
   }
 
@@ -73,12 +132,20 @@ export default function SendersClient({ initialSenders }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ senderIds: Array.from(selected) }),
         })
-        if (res.ok) {
-          setSenderList(prev => prev.map(s => selected.has(s.id) ? { ...s, status: "unsubscribed" } : s))
-          setSelected(new Set())
-          setSuccess(true)
-          setTimeout(() => setSuccess(false), 3000)
+        if (!res.ok) return
+        const data = await res.json() as { jobs: Array<{ jobId: string; senderId: string }> }
+
+        const initial: JobState = {}
+        for (const { jobId, senderId } of data.jobs) {
+          initial[senderId] = { jobId, status: "queued" }
         }
+        setJobState(prev => ({ ...prev, ...initial }))
+        setSelected(new Set())
+
+        stopPolling()
+        pollRef.current = setInterval(() => {
+          setJobState(curr => { pollJobs(curr); return curr })
+        }, 3000)
       } catch {}
     })
   }
@@ -106,18 +173,39 @@ export default function SendersClient({ initialSenders }: Props) {
 
       {/* Banners */}
       <AnimatePresence>
-        {success && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            role="status"
-            className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-(--color-success-muted) border border-[rgba(34,197,94,0.2)] text-sm text-(--color-success)"
-          >
-            <CheckCircle size={14} aria-hidden="true" />
-            Unsubscribe jobs queued.
-          </motion.div>
-        )}
+        {(() => {
+          const jobs = Object.values(jobState)
+          const active  = jobs.filter(j => j.status === "queued" || j.status === "processing").length
+          const done    = jobs.filter(j => j.status === "done").length
+          const failed  = jobs.filter(j => j.status === "failed").length
+          const total   = jobs.length
+          if (!total) return null
+          if (active > 0) return (
+            <motion.div key="unsub-progress"
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              role="status"
+              className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-(--color-accent-muted) border border-(--color-accent-border) text-sm text-(--color-accent)"
+            >
+              <Loader size={14} className="animate-spin" aria-hidden="true" />
+              Unsubscribing {active} sender{active !== 1 ? "s" : ""}… {done > 0 && `(${done} done)`}
+            </motion.div>
+          )
+          return (
+            <motion.div key="unsub-done"
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              role="status"
+              className={cn(
+                "flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm border",
+                failed > 0
+                  ? "bg-(--color-danger-muted) border-[rgba(239,68,68,0.2)] text-(--color-danger)"
+                  : "bg-(--color-success-muted) border-[rgba(34,197,94,0.2)] text-(--color-success)"
+              )}
+            >
+              {failed > 0 ? <AlertCircle size={14} aria-hidden="true" /> : <CheckCircle size={14} aria-hidden="true" />}
+              {done > 0 && `${done} unsubscribed`}{done > 0 && failed > 0 && ", "}{failed > 0 && `${failed} failed`}.
+            </motion.div>
+          )
+        })()}
         {digestSuccess && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -214,7 +302,7 @@ export default function SendersClient({ initialSenders }: Props) {
                 <th className={cn(tableHeaderCell, "w-10")}>
                   <input
                     type="checkbox"
-                    checked={selected.size === filtered.length && filtered.length > 0}
+                    checked={selected.size === selectableFiltered.length && selectableFiltered.length > 0}
                     onChange={toggleAll}
                     aria-label="Select all"
                     className="h-3.5 w-3.5 rounded accent-orange-500"
@@ -240,7 +328,7 @@ export default function SendersClient({ initialSenders }: Props) {
                   className={cn(
                     tableRow,
                     selected.has(sender.id) && "bg-(--color-accent-muted)",
-                    sender.status === "unsubscribed" && "opacity-40"
+                    (sender.status === "unsubscribed" || !canSelect(sender)) && "opacity-50"
                   )}
                 >
                   {/* Checkbox */}
@@ -249,9 +337,9 @@ export default function SendersClient({ initialSenders }: Props) {
                       type="checkbox"
                       checked={selected.has(sender.id)}
                       onChange={() => toggleSelect(sender.id)}
-                      disabled={sender.status === "unsubscribed"}
+                      disabled={!canSelect(sender)}
                       aria-label={`Select ${sender.displayName ?? sender.email}`}
-                      className="h-3.5 w-3.5 rounded accent-orange-500"
+                      className={cn("h-3.5 w-3.5 rounded accent-orange-500", !canSelect(sender) && "cursor-not-allowed")}
                     />
                   </td>
 
@@ -287,9 +375,17 @@ export default function SendersClient({ initialSenders }: Props) {
 
                   {/* Status */}
                   <td className={cn(tableCell, "text-right")}>
-                    {sender.status === "unsubscribed" && <span className={pillDanger}>unsub</span>}
-                    {sender.status === "in_digest"    && <span className={pillSuccess}>digest</span>}
-                    {sender.status === "active"       && <span className={pillNeutral}>active</span>}
+                    {(() => {
+                      const job = jobState[sender.id]
+                      if (job?.status === "queued" || job?.status === "processing")
+                        return <span className={cn(pillNeutral, "gap-1")}><Loader size={10} className="animate-spin" />processing</span>
+                      if (job?.status === "failed")
+                        return <span className={pillDanger}>failed</span>
+                      if (sender.status === "unsubscribed") return <span className={pillDanger}>unsub</span>
+                      if (sender.status === "in_digest")    return <span className={pillSuccess}>digest</span>
+                      if (!sender.unsubscribeUrl)           return <span className={pillNeutral} title="No HTTP unsubscribe link found in emails">no link</span>
+                      return <span className={pillNeutral}>active</span>
+                    })()}
                   </td>
 
                   {/* Actions placeholder */}

@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vanta",
   "main": "./worker.ts",
-  "compatibility_date": "2026-05-03",
+  "compatibility_date": "2026-04-16",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
@@ -27,6 +27,9 @@
   "env": {
     "dev": {
       "name": "vanta-dev",
+      "images": {
+        "binding": "IMAGES",
+      },
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
@@ -81,6 +84,9 @@
 
     "prod": {
       "name": "vanta",
+      "images": {
+        "binding": "IMAGES",
+      },
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",

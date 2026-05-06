@@ -1,5 +1,6 @@
 import { senders, unsubscribeJobs } from "@backend/db/schema"
 import { getDb } from "@backend/lib/db"
+import { logAudit } from "@backend/lib/audit"
 import {
   createGmailFilter,
   getValidAccessToken,
@@ -32,6 +33,16 @@ export const unsubQueue = async (
       .update(unsubscribeJobs)
       .set({ status: "failed", errorMessage: "Max attempts reached", lastAttemptAt: now() })
       .where(eq(unsubscribeJobs.id, jobId))
+    const exhaustedSender = await db
+      .select({ email: senders.email, displayName: senders.displayName })
+      .from(senders)
+      .where(eq(senders.id, job.senderId))
+      .get()
+    await logAudit(db, userId, "unsub_failed", {
+      entityType: "sender",
+      entityId:   job.senderId,
+      metadata:   { email: exhaustedSender?.email, displayName: exhaustedSender?.displayName, error: "Max attempts reached", attempts: job.attempts },
+    })
     return
   }
 
@@ -46,10 +57,10 @@ export const unsubQueue = async (
     .where(and(eq(senders.id, job.senderId), eq(senders.userId, userId)))
     .get()
 
-  if (!sender) throw new Error("Sender not found")
+  if (!sender) { console.error(`[unsub] sender not found for job ${jobId}`); throw new Error("Sender not found") }
 
   const accessToken = await getValidAccessToken(db, userId, env)
-  if (!accessToken) throw new Error("No valid access token")
+  if (!accessToken) { console.error(`[unsub] no valid access token for user ${userId}`); throw new Error("No valid access token") }
 
   let success = false
 
@@ -89,7 +100,10 @@ export const unsubQueue = async (
     success = await createGmailFilter(accessToken, sender.email)
   }
 
-  if (!success) throw new Error("All unsubscribe methods failed")
+  if (!success) {
+    console.error(`[unsub] all methods failed for sender ${sender.email}`)
+    throw new Error("All unsubscribe methods failed")
+  }
 
   await db
     .update(unsubscribeJobs)
@@ -100,4 +114,10 @@ export const unsubQueue = async (
     .update(senders)
     .set({ status: "unsubscribed", updatedAt: now() })
     .where(eq(senders.id, job.senderId))
+
+  await logAudit(db, userId, "unsub_done", {
+    entityType: "sender",
+    entityId:   job.senderId,
+    metadata:   { email: sender.email, displayName: sender.displayName, method: job.method },
+  })
 }

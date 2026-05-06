@@ -4,6 +4,7 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@backend/middleware/auth";
 import { getDb } from "@backend/lib/db";
+import { logAudit } from "@backend/lib/audit";
 import { digests, digestSenders, senders } from "@backend/db/schema";
 import { newId, now } from "@backend/lib/id";
 
@@ -232,6 +233,12 @@ digestRoute.post(
         .set({ status: "in_digest", updatedAt: ts })
         .where(eq(senders.id, sender.id));
     }
+
+    await logAudit(db, userId, "digest_add", {
+      entityType: "digest",
+      entityId:   digest.id,
+      metadata:   { count: senderIds.length, senderIds },
+    });
 
     return c.json({ ok: true });
   },

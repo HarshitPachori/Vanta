@@ -257,14 +257,12 @@ auth.get("/google", (c) => {
       "openid",
       "email",
       "profile",
-      // "https://www.googleapis.com/auth/gmail.modify",
       "https://www.googleapis.com/auth/gmail.readonly",
     ].join(" "),
     access_type: "offline",
     prompt: "consent",
     include_granted_scopes: "true",
   });
-  console.log("🔄 Google Redirect URI being sent:", redirectUri);
   return c.redirect(
     `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
   );
@@ -316,9 +314,9 @@ auth.get("/google/callback", async (c) => {
   }>();
 
   const grantedScopes = tokens.scope.split(" ");
-  const hasGmailAccess = grantedScopes.includes(
-    "https://www.googleapis.com/auth/gmail.readonly",
-  );
+  const hasGmailAccess =
+    grantedScopes.includes("https://www.googleapis.com/auth/gmail.modify") ||
+    grantedScopes.includes("https://www.googleapis.com/auth/gmail.readonly");
 
   // Get Google profile
   const profileRes = await fetch(
@@ -337,6 +335,7 @@ auth.get("/google/callback", async (c) => {
     picture: string;
   }>();
 
+  try {
   const db = getDb(c.env.DB);
   const ts = now();
   const exp = ts + tokens.expires_in;
@@ -421,6 +420,10 @@ auth.get("/google/callback", async (c) => {
       ? `${c.env.CLIENT_BASE_URI}/dashboard`
       : `${c.env.CLIENT_BASE_URI}/onboarding`,
   );
+  } catch (err) {
+    console.error("Google callback error:", err);
+    return c.redirect(`${c.env.CLIENT_BASE_URI}/login?error=oauth_failed`);
+  }
 });
 
 auth.get("/google/gmail", requireAuth, (c) => {

@@ -314,7 +314,7 @@ export default function OnboardingClient({
 
             <div className="flex flex-col gap-3 w-full">
               <Button  size="lg" className="w-full shadow-(--shadow-glow-sm)">
-                <Link href="/dashboard/senders">
+                <Link href="/dashboard/senders" className="flex items-center gap-1">
                   Manage senders
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>

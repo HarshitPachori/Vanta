@@ -13,29 +13,31 @@ import {
   Menu,
   X,
   Crown,
+  ScrollText,
 } from "lucide-react";
 import { cn, glassAvatar, navItem, navItemActive } from "@/lib/cn";
 import { EASE_SMOOTH } from "@/lib/motion";
 
 type User = {
   id: string;
-  email: string;
+  email: string | null;
   name: string | null;
   avatarUrl: string | null;
-  hasGmailAccess: boolean;
-  scanStatus: string;
+  hasGmailAccess: boolean | null;
+  scanStatus: string | null;
   lastScannedAt: number | null;
   plan: string;
 };
 
 const NAV = [
-  { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Senders", href: "/dashboard/senders", icon: Mail },
-  { label: "Digest", href: "/dashboard/digest", icon: Layers },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Overview",  href: "/dashboard",          icon: LayoutDashboard },
+  { label: "Senders",   href: "/dashboard/senders",  icon: Mail },
+  { label: "Digest",    href: "/dashboard/digest",   icon: Layers },
+  { label: "Activity",  href: "/dashboard/logs",     icon: ScrollText },
+  { label: "Settings",  href: "/dashboard/settings", icon: Settings },
 ] as const;
 
-const initials = (name: string | null, email: string) =>
+const initials = (name: string | null, email: string | null) =>
   name
     ? name
         .split(" ")
@@ -43,7 +45,7 @@ const initials = (name: string | null, email: string) =>
         .join("")
         .toUpperCase()
         .slice(0, 2)
-    : email[0].toUpperCase();
+    : (email?.[0] ?? "?").toUpperCase();
 
 export default function DashboardShell({
   user,

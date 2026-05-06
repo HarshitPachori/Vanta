@@ -1,9 +1,15 @@
+/// <reference types="@cloudflare/workers-types" />
+/// <reference path="./cloudflare-env.d.ts" />
 // @ts-ignore generated at build time
 import { default as handler } from "./.open-next/worker.js";
 import { scanQueue } from "@backend/workers/scan-workers";
 import { unsubQueue } from "@backend/workers/unsub-workers";
 import { digestQueue } from "@backend/workers/digest-workers";
 import { runDigestScheduler } from "@backend/workers/digest-scheduler";
+import { getDb } from "@backend/lib/db";
+import { auditLogs } from "@backend/db/schema";
+import { lt } from "drizzle-orm";
+import { now } from "@backend/lib/id";
 
 type QueueMessage =
   | { type: "scan"; userId: string }
@@ -13,11 +19,15 @@ type QueueMessage =
 export default {
   fetch: handler.fetch,
   async scheduled(
-    event: ScheduledEvent,
-    env:   CloudflareEnv,
-    ctx:   ExecutionContext
+    _controller: ScheduledController,
+    env:         CloudflareEnv,
+    ctx:         ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(runDigestScheduler(env))
+    const cleanupAuditLogs = async () => {
+      const db = getDb(env.DB)
+      await db.delete(auditLogs).where(lt(auditLogs.createdAt, now() - 48 * 3600))
+    }
+    ctx.waitUntil(Promise.all([runDigestScheduler(env), cleanupAuditLogs()]))
   },
   async queue(
     batch: MessageBatch<QueueMessage>,
