@@ -1,6 +1,7 @@
 import { eq, and, inArray } from "drizzle-orm"
 import { digests, digestSenders, senders, users } from "@backend/db/schema"
 import { getDb } from "@backend/lib/db"
+import { logAudit } from "@backend/lib/audit"
 import { now } from "@backend/lib/id"
 import { getValidAccessToken, listMessageIds, batchGetMessageHeaders, getHeader, parseFrom } from "@backend/lib/gmail"
 import { buildDigestEmail } from "@backend/lib/digest-email"
@@ -140,4 +141,10 @@ export const digestQueue = async (
     .update(digests)
     .set({ lastSentAt: now(), updatedAt: now() })
     .where(eq(digests.id, digestId))
+
+  await logAudit(db, digest.userId, "digest_sent", {
+    entityType: "digest",
+    entityId:   digestId,
+    metadata:   { digestName: digest.name, itemCount: items.length, recipientEmail: user.email },
+  })
 }

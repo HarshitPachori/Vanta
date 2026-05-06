@@ -197,6 +197,29 @@ export const passwordResetTokens = sqliteTable(
   ]
 )
 
+export const auditLogs = sqliteTable(
+  "audit_logs",
+  {
+    id:         text("id").primaryKey(),
+    userId:     text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    action:     text("action", {
+      enum: [
+        "scan_started", "scan_done", "scan_failed",
+        "unsub_requested", "unsub_done", "unsub_failed",
+        "digest_add", "digest_sent",
+      ],
+    }).notNull(),
+    entityType: text("entity_type"),
+    entityId:   text("entity_id"),
+    metadata:   text("metadata"),
+    createdAt:  integer("created_at").notNull(),
+  },
+  (t) => [
+    index("audit_logs_user_id_idx").on(t.userId),
+    index("audit_logs_created_at_idx").on(t.createdAt),
+  ]
+)
+
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 
 export type User = typeof users.$inferSelect;
@@ -206,3 +229,4 @@ export type UnsubJob = typeof unsubscribeJobs.$inferSelect;
 export type Digest = typeof digests.$inferSelect;
 export type DigestSender = typeof digestSenders.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
+export type AuditLog = typeof auditLogs.$inferSelect;

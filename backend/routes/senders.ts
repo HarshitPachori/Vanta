@@ -1,9 +1,10 @@
 import { senders, unsubscribeJobs } from "@backend/db/schema"
 import { getDb } from "@backend/lib/db"
+import { logAudit } from "@backend/lib/audit"
 import { newId, now } from "@backend/lib/id"
 import { requireAuth } from "@backend/middleware/auth"
 import { zValidator } from "@hono/zod-validator"
-import { and, desc, eq } from "drizzle-orm"
+import { and, desc, eq, inArray } from "drizzle-orm"
 import { Hono } from "hono"
 import { z } from "zod"
 
@@ -39,7 +40,7 @@ sendersRoute.post("/unsubscribe", requireAuth, zValidator("json", unsubSchema), 
   const db        = getDb(c.env.DB)
   const ts        = now()
 
-  const created: string[] = []
+  const created: { jobId: string; senderId: string }[] = []
 
   for (const senderId of senderIds) {
     const sender = await db
@@ -60,11 +61,37 @@ sendersRoute.post("/unsubscribe", requireAuth, zValidator("json", unsubSchema), 
       status: "queued", attempts: 0, createdAt: ts,
     })
 
-    await c.env.UNSUB_QUEUE.send({ jobId, userId , type:'unsub'})
-    created.push(jobId)
+    await c.env.UNSUB_QUEUE.send({ jobId, userId, type: "unsub" })
+    created.push({ jobId, senderId })
   }
 
-  return c.json({ ok: true, jobsCreated: created.length })
+  if (created.length > 0) {
+    await logAudit(db, userId, "unsub_requested", {
+      metadata: { count: created.length, senderIds: created.map(j => j.senderId) },
+    })
+  }
+
+  return c.json({ ok: true, jobs: created })
+})
+
+sendersRoute.get("/jobs", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const ids = (c.req.query("ids") ?? "").split(",").filter(Boolean)
+  if (!ids.length) return c.json({ jobs: [] })
+
+  const db = getDb(c.env.DB)
+  const jobs = await db
+    .select({
+      id:           unsubscribeJobs.id,
+      senderId:     unsubscribeJobs.senderId,
+      status:       unsubscribeJobs.status,
+      errorMessage: unsubscribeJobs.errorMessage,
+    })
+    .from(unsubscribeJobs)
+    .where(and(eq(unsubscribeJobs.userId, userId), inArray(unsubscribeJobs.id, ids)))
+    .all()
+
+  return c.json({ jobs })
 })
 
 export default sendersRoute

@@ -9,7 +9,7 @@ import { fadeUp } from "@/lib/motion"
 import { useRouter } from "next/navigation"
 
 type Props = {
-  scanStatus:    string
+  scanStatus:    string | null
   lastScannedAt: number | null
 }
 
@@ -50,13 +50,24 @@ export default function ScanStatus({ scanStatus: initial, lastScannedAt: initial
     es.addEventListener("timeout", () => {
       es.close()
       eventSourceRef.current = null
+      router.refresh()
     })
 
     es.addEventListener("error", () => {
       es.close()
       eventSourceRef.current = null
+      router.refresh()
     })
   }
+
+  // Sync state from server when router.refresh() delivers new props and no SSE active
+  useEffect(() => {
+    if (!eventSourceRef.current) {
+      setStatus(initial)
+      setLastTs(initialTs)
+      if (initial === "scanning") connectSSE()
+    }
+  }, [initial, initialTs])
 
   // connect SSE if scan is already running on mount
   useEffect(() => {

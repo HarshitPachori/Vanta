@@ -1,5 +1,6 @@
 import { users } from "@backend/db/schema"
 import { getDb } from "@backend/lib/db"
+import { logAudit } from "@backend/lib/audit"
 import { now } from "@backend/lib/id"
 import { requireAuth } from "@backend/middleware/auth"
 import { eq } from "drizzle-orm"
@@ -31,6 +32,8 @@ scan.post("/", requireAuth, async (c) => {
     .update(users)
     .set({ scanStatus: "scanning", updatedAt: now() })
     .where(eq(users.id, userId))
+
+  await logAudit(db, userId, "scan_started")
 
 return c.json({ ok: true, status: "scanning" })
 })

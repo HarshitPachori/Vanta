@@ -14,11 +14,17 @@ type GmailMessageHeader = {
 };
 
 type GmailMessageDetail = {
-  id: string;
-  payload: {
-    headers: GmailMessageHeader[];
-  };
+  id:           string;
+  threadId:     string;
+  labelIds:     string[];
+  snippet:      string;
+  sizeEstimate: number;
   internalDate: string;
+  payload: {
+    mimeType: string;
+    filename: string;
+    headers:  GmailMessageHeader[];
+  };
 };
 
 type GmailListResponse = {
@@ -147,7 +153,7 @@ export const batchGetMessageHeaders = async (
 
     const fetches = chunk.map((id) =>
       fetch(
-        `${GMAIL_BASE}/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=List-Unsubscribe&metadataHeaders=Date&metadataHeaders=Precedence&metadataHeaders=X-Mailer&metadataHeaders=X-Campaign-Id`,
+        `${GMAIL_BASE}/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=List-Unsubscribe&metadataHeaders=Date&metadataHeaders=Precedence&metadataHeaders=X-Mailer&metadataHeaders=X-Campaign-Id&metadataHeaders=Auto-Submitted`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
@@ -201,81 +207,123 @@ export const categorizeSender = (
   email: string,
   displayName: string,
   hasUnsubscribeHeader: boolean,
+  labelIds?: string[],
   precedence?: string,
   xMailer?: string,
+  xCampaignId?: string,
+  autoSubmitted?: string,
 ): "newsletter" | "promo" | "transactional" | "social" | "cold" | "other" => {
-  if (
-    precedence?.toLowerCase() === "bulk" ||
-    precedence?.toLowerCase() === "list"
-  ) {
-    return hasUnsubscribeHeader ? "newsletter" : "promo";
+  const e = email.toLowerCase()
+  const n = displayName.toLowerCase()
+  const localPart = e.split("@")[0]
+
+  // ── Tier 1: Gmail labels (trust Google's ML first) ───────────────────────
+  if (labelIds?.includes("CATEGORY_SOCIAL")) return "social"
+  if (labelIds?.includes("CATEGORY_FORUMS")) return "newsletter"
+
+  if (labelIds?.includes("CATEGORY_PROMOTIONS")) {
+    const editorialKw = ["newsletter", "digest", "weekly", "daily", "morning", "substack", "medium", "brew", "letter", "roundup", "bulletin", "dispatch"]
+    if (hasUnsubscribeHeader && editorialKw.some((k) => e.includes(k) || n.includes(k))) return "newsletter"
+    return "promo"
   }
 
-  // known ESP tools → promo/newsletter
+  if (labelIds?.includes("CATEGORY_UPDATES")) {
+    return hasUnsubscribeHeader ? "newsletter" : "transactional"
+  }
+
+  if (labelIds?.includes("CATEGORY_PERSONAL")) {
+    const hasAutomation =
+      hasUnsubscribeHeader ||
+      !!xCampaignId ||
+      !!(autoSubmitted && autoSubmitted.toLowerCase() !== "no") ||
+      !!(precedence && ["bulk", "list", "junk"].includes(precedence.toLowerCase()))
+    if (!hasAutomation) return "cold"
+    // has automation signals despite personal label — fall through
+  }
+
+  // ── Tier 2: Explicit automation headers ──────────────────────────────────
+  // Auto-Submitted: auto-generated / auto-replied = system-triggered email
+  if (autoSubmitted && autoSubmitted.toLowerCase() !== "no") return "transactional"
+
+  // X-Campaign-Id = bulk marketing run
+  if (xCampaignId) return hasUnsubscribeHeader ? "newsletter" : "promo"
+
+  // Known ESP X-Mailer values
   const espKeywords = [
-    "mailchimp",
-    "sendgrid",
-    "klaviyo",
-    "hubspot",
-    "marketo",
-    "campaign monitor",
-  ];
+    "mailchimp", "sendgrid", "klaviyo", "hubspot", "marketo",
+    "campaign monitor", "netcorecloud", "customer.io", "customerio",
+    "brevo", "sendinblue", "activecampaign", "constant contact",
+    "mailerlite", "convertkit", "drip", "iterable", "sailthru",
+  ]
   if (xMailer && espKeywords.some((k) => xMailer.toLowerCase().includes(k))) {
-    return hasUnsubscribeHeader ? "newsletter" : "promo";
+    return hasUnsubscribeHeader ? "newsletter" : "promo"
   }
-  const e = email.toLowerCase();
-  const n = displayName.toLowerCase();
 
+  if (precedence) {
+    const p = precedence.toLowerCase()
+    if (p === "bulk" || p === "list") return hasUnsubscribeHeader ? "newsletter" : "promo"
+    if (p === "junk") return "promo"
+  }
+
+  // ── Tier 3: Social network domains ───────────────────────────────────────
   const socialDomains = [
-    "linkedin.com",
-    "twitter.com",
-    "x.com",
-    "facebook.com",
-    "instagram.com",
-    "tiktok.com",
-  ];
-  if (socialDomains.some((d) => e.includes(d))) return "social";
+    "linkedin.com", "twitter.com", "x.com", "facebook.com",
+    "instagram.com", "tiktok.com", "pinterest.com", "snapchat.com", "reddit.com",
+  ]
+  if (socialDomains.some((d) => e.includes(d))) return "social"
 
-  const transactionalKeywords = [
-    "noreply",
-    "no-reply",
-    "notifications",
-    "support",
-    "billing",
-    "invoice",
-    "receipt",
-    "order",
-    "shipping",
-  ];
-  if (transactionalKeywords.some((k) => e.includes(k) || n.includes(k)))
-    return "transactional";
+  // ── Tier 4: Email address / display name patterns ────────────────────────
 
-  const newsletterKeywords = [
-    "newsletter",
-    "digest",
-    "weekly",
-    "daily",
-    "morning",
-    "substack",
-    "medium",
-    "brew",
-  ];
-  if (newsletterKeywords.some((k) => e.includes(k) || n.includes(k)))
-    return "newsletter";
-  if (hasUnsubscribeHeader) return "newsletter";
+  // Exact local-part matches for the strongest transactional signals
+  const exactTransactional = [
+    "noreply", "no-reply", "no_reply", "donotreply", "do-not-reply", "do_not_reply",
+    "mailer-daemon", "postmaster", "bounce", "bounces",
+  ]
+  if (exactTransactional.includes(localPart)) return "transactional"
 
-  const promoKeywords = [
-    "promo",
-    "offer",
-    "deal",
-    "sale",
-    "discount",
-    "marketing",
-    "campaigns",
-  ];
-  if (promoKeywords.some((k) => e.includes(k) || n.includes(k))) return "promo";
+  // Broader transactional patterns in full email or display name
+  const transactionalPatterns = [
+    "noreply", "no-reply", "no_reply", "donotreply",
+    "notifications@", "notification@", "alerts@", "alert@",
+    "confirm@", "confirmation@", "verify@", "verification@",
+    "billing@", "invoice@", "invoices@", "receipt@", "receipts@",
+    "orders@", "order-confirm", "shipping@", "shipment@", "delivery@",
+    "account@", "security@", "password@", "reset@",
+    "automated@", "system@", "auto@", "bot@",
+    "service@", "transact", "updates@",
+  ]
+  if (transactionalPatterns.some((k) => e.includes(k))) return "transactional"
 
-  return "other";
+  // Transactional keywords in display name
+  const transactionalNameKw = [
+    "notifications", "alerts", "billing", "invoice", "receipt",
+    "order", "shipping", "delivery", "security", "confirm", "verification",
+  ]
+  if (transactionalNameKw.some((k) => n.includes(k))) return "transactional"
+
+  // Newsletter / editorial content patterns
+  const newsletterKw = [
+    "newsletter", "digest", "weekly", "daily", "morning",
+    "substack", "medium", "brew", "letter", "roundup",
+    "bulletin", "dispatch", "briefing",
+  ]
+  if (newsletterKw.some((k) => e.includes(k) || n.includes(k))) return "newsletter"
+
+  // Promo patterns
+  const promoKw = [
+    "promo", "promotions", "offer", "offers", "deals", "deal",
+    "sale", "discount", "discounts", "marketing", "campaign",
+    "coupon", "savings", "special",
+  ]
+  if (promoKw.some((k) => e.includes(k) || n.includes(k))) return "promo"
+
+  // ── Tier 5: Unsubscribe = some form of opted-in bulk email ───────────────
+  if (hasUnsubscribeHeader) return "newsletter"
+
+  // ── Tier 6: Fallback ─────────────────────────────────────────────────────
+  // No automation signals + no keywords + no Gmail category = unknown
+  // Don't label as cold without the CATEGORY_PERSONAL signal — too risky
+  return "other"
 };
 
 export const archiveMessages = async (

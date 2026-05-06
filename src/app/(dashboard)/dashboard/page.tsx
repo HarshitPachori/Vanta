@@ -1,89 +1,33 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { verifyToken } from "@backend/lib/jwt";
 import { getDb } from "@backend/lib/db";
-import { users, sessions, senders } from "@backend/db/schema";
-import { eq, and, gt, count, sql } from "drizzle-orm";
+import { senders } from "@backend/db/schema";
+import { eq, and, count } from "drizzle-orm";
+import { getUser, requireOnboarding } from "@/lib/auth";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Mail,
-  Trash2,
-  Layers,
-  BarChart2,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import { Mail, Trash2, Layers, BarChart2, CheckCircle } from "lucide-react";
 import ScanStatus from "@/components/dashboard/scan-status";
-import { requireOnboarding } from "@/lib/auth";
 import { cardSection, metricCard, cn, iconSquare } from "@/lib/cn";
 
 export const metadata: Metadata = { title: "Overview — Vanta" };
 
 const getData = async () => {
   try {
-    const { env } = getCloudflareContext();
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
-    if (!token) return null;
-
-    const payload = await verifyToken<{ sessionId: string }>(
-      token,
-      env.AUTH_JWT_SECRET,
-    );
-    if (!payload?.sessionId) return null;
-
-    const db = getDb(env.DB);
-    const now = Math.floor(Date.now() / 1000);
-
-    const session = await db
-      .select()
-      .from(sessions)
-      .where(
-        and(eq(sessions.id, payload.sessionId), gt(sessions.expiresAt, now)),
-      )
-      .get();
-
-    if (!session) return null;
-
-    const user = await db
-      .select({
-        id: users.id,
-        hasGmailAccess: users.hasGmailAccess,
-        scanStatus: users.scanStatus,
-        lastScannedAt: users.lastScannedAt,
-      })
-      .from(users)
-      .where(eq(users.id, session.userId))
-      .get();
-
+    const user = await getUser();
     if (!user) return null;
 
-    const [totalRow] = await db
-      .select({ count: count() })
-      .from(senders)
-      .where(eq(senders.userId, user.id));
+    const { env } = getCloudflareContext();
+    const db = getDb(env.DB);
 
-    const [unsubRow] = await db
-      .select({ count: count() })
-      .from(senders)
-      .where(
-        and(eq(senders.userId, user.id), eq(senders.status, "unsubscribed")),
-      );
-
-    const [digestRow] = await db
-      .select({ count: count() })
-      .from(senders)
-      .where(and(eq(senders.userId, user.id), eq(senders.status, "in_digest")));
-
-    const [newsletterRow] = await db
-      .select({ count: count() })
-      .from(senders)
-      .where(
-        and(eq(senders.userId, user.id), eq(senders.category, "newsletter")),
-      );
+    const [[totalRow], [unsubRow], [digestRow], [newsletterRow]] =
+      await Promise.all([
+        db.select({ count: count() }).from(senders).where(eq(senders.userId, user.id)),
+        db.select({ count: count() }).from(senders).where(and(eq(senders.userId, user.id), eq(senders.status, "unsubscribed"))),
+        db.select({ count: count() }).from(senders).where(and(eq(senders.userId, user.id), eq(senders.status, "in_digest"))),
+        db.select({ count: count() }).from(senders).where(and(eq(senders.userId, user.id), eq(senders.category, "newsletter"))),
+      ]);
 
     return {
       user,

@@ -1,47 +1,35 @@
 export const dynamic = "force-dynamic"
 
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getCloudflareContext } from "@opennextjs/cloudflare"
-import { verifyToken } from "@backend/lib/jwt"
 import { getDb } from "@backend/lib/db"
-import { sessions, senders } from "@backend/db/schema"
-import { eq, and, gt, desc } from "drizzle-orm"
+import { senders, unsubscribeJobs } from "@backend/db/schema"
+import { eq, desc, and, gt } from "drizzle-orm"
+import { now } from "@backend/lib/id"
+import { getUser, requireOnboarding } from "@/lib/auth"
 import type { Metadata } from "next"
 import SendersClient from "@/components/dashboard/senders-client"
-import { requireOnboarding } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Senders — Vanta" }
 
 const getData = async () => {
   try {
-    const { env }     = getCloudflareContext()
-    const cookieStore = await cookies()
-    const token       = cookieStore.get("session")?.value
-    if (!token) return null
+    const user = await getUser()
+    if (!user) return null
 
-    const payload = await verifyToken<{ sessionId: string }>(token, env.AUTH_JWT_SECRET)
-    if (!payload?.sessionId) return null
+    const { env } = getCloudflareContext()
+    const db = getDb(env.DB)
 
-    const db  = getDb(env.DB)
-    const now = Math.floor(Date.now() / 1000)
+    const [senderRows, jobRows] = await Promise.all([
+      db.select().from(senders).where(eq(senders.userId, user.id)).orderBy(desc(senders.emailCount)).all(),
+      db
+        .select({ id: unsubscribeJobs.id, senderId: unsubscribeJobs.senderId, status: unsubscribeJobs.status })
+        .from(unsubscribeJobs)
+        .where(and(eq(unsubscribeJobs.userId, user.id), gt(unsubscribeJobs.createdAt, now() - 600)))
+        .all(),
+    ])
 
-    const session = await db
-      .select()
-      .from(sessions)
-      .where(and(eq(sessions.id, payload.sessionId), gt(sessions.expiresAt, now)))
-      .get()
-
-    if (!session) return null
-
-    const rows = await db
-      .select()
-      .from(senders)
-      .where(eq(senders.userId, session.userId))
-      .orderBy(desc(senders.emailCount))
-      .all()
-
-    return rows
+    return { senders: senderRows, jobs: jobRows }
   } catch {
     return null
   }
@@ -62,7 +50,7 @@ export default async function SendersPage() {
           All senders detected in your inbox. Select and unsubscribe in bulk.
         </p>
       </header>
-      <SendersClient initialSenders={data} />
+      <SendersClient initialSenders={data.senders} initialJobs={data.jobs} />
     </div>
   )
 }

@@ -15,6 +15,13 @@
       "when": 1777802044036,
       "tag": "0001_flippant_charles_xavier",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777813477175,
+      "tag": "0002_grey_whizzer",
+      "breakpoints": true
     }
   ]
 }
