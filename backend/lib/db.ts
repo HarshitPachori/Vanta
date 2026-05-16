@@ -1,7 +1,6 @@
-import { drizzle } from "drizzle-orm/d1"
-import * as schema from "@backend/db/schema"
+import { drizzle } from 'drizzle-orm/d1';
+import * as schema from '@backend/db/schema';
 
-export const getDb = (d1: D1Database) =>
-  drizzle(d1, { schema })
+export const getDb = (d1: D1Database) => drizzle(d1, { schema });
 
-export type Db = ReturnType<typeof getDb>
+export type Db = ReturnType<typeof getDb>;

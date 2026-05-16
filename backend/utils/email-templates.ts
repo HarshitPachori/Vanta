@@ -1,6 +1,6 @@
 type UrlInput = {
-  baseUrl: string;
-  url: string;
+	baseUrl: string;
+	url: string;
 };
 export const generateResetPasswordHtml = ({ baseUrl, url }: UrlInput) => `
  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

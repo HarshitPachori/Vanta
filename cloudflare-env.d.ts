@@ -123,6 +123,7 @@ interface CloudflareEnv extends Cloudflare.Env {
   ASSETS: Fetcher;
   NEXTJS_ENV: string;
   WORKER_SELF_REFERENCE: Fetcher /* vanta */;
+  AI: Ai;
 }
 type StringifyValues<EnvType extends Record<string, unknown>> = {
   [Binding in keyof EnvType]: EnvType[Binding] extends string
