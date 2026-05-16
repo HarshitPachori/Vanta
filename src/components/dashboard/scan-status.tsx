@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, useTransition, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cardSection, cn, iconSquare } from '@/lib/cn';
 import { fadeUp } from '@/lib/motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, CheckCircle, Loader, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, useTransition } from 'react';
 
 type Props = {
 	scanStatus: string | null;
@@ -155,7 +156,7 @@ export default function ScanStatus({ scanStatus: initial, lastScannedAt: initial
 				)}
 				{status === 'token_expired' && (
 					<Button variant="outline" size="sm" className="shrink-0">
-						<a href="/api/auth/google/gmail">Reconnect</a>
+						<Link href="/api/auth/google/gmail">Reconnect</Link>
 					</Button>
 				)}
 			</motion.section>

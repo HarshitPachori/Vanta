@@ -35,7 +35,7 @@ export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKe
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reset your Vanta password</title>
+  <title>Reset your InboxRift password</title>
 </head>
 <body style="margin:0;padding:0;background:#09090B;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#09090B;padding:40px 16px;">
@@ -52,7 +52,7 @@ export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKe
                     <span style="font-family:sans-serif;font-size:16px;font-weight:800;color:white;line-height:32px;">V</span>
                   </td>
                   <td style="padding-left:10px;">
-                    <span style="font-family:sans-serif;font-size:18px;font-weight:700;color:#F4F4F5;letter-spacing:-0.02em;">Vanta</span>
+                    <span style="font-family:sans-serif;font-size:18px;font-weight:700;color:#F4F4F5;letter-spacing:-0.02em;">InboxRift</span>
                   </td>
                 </tr>
               </table>
@@ -66,7 +66,7 @@ export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKe
                 Reset your password
               </p>
               <p style="margin:0 0 28px 0;font-family:sans-serif;font-size:14px;color:#71717A;line-height:1.6;">
-                We received a request to reset your Vanta password. Click the button below — this link expires in 1 hour.
+                We received a request to reset your InboxRift password. Click the button below — this link expires in 1 hour.
               </p>
               
                 href="${resetUrl}"
@@ -98,7 +98,7 @@ export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKe
   `.trim();
 
 	const text = [
-		'Reset your Vanta password',
+		'Reset your InboxRift password',
 		'',
 		'We received a request to reset your password.',
 		'Click this link to reset it (expires in 1 hour):',
@@ -108,5 +108,5 @@ export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKe
 		"If you didn't request this, ignore this email.",
 	].join('\n');
 
-	return sendEmail({ to, from, subject: 'Reset your Vanta password', html, text }, apiKey);
+	return sendEmail({ to, from, subject: 'Reset your InboxRift password', html, text }, apiKey);
 };

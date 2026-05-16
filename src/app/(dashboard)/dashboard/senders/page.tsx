@@ -1,16 +1,16 @@
 export const dynamic = 'force-dynamic';
 
-import { redirect } from 'next/navigation';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getDb } from '@backend/lib/db';
-import { senders, unsubscribeJobs } from '@backend/db/schema';
-import { eq, desc, and, gt } from 'drizzle-orm';
-import { now } from '@backend/lib/id';
-import { getUser, requireOnboarding } from '@/lib/auth';
-import type { Metadata } from 'next';
 import SendersClient from '@/components/dashboard/senders-client';
+import { getUser, requireOnboarding } from '@/lib/auth';
+import { senders, unsubscribeJobs } from '@backend/db/schema';
+import { getDb } from '@backend/lib/db';
+import { now } from '@backend/lib/id';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { and, desc, eq, gt } from 'drizzle-orm';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Senders — Vanta' };
+export const metadata: Metadata = { title: 'Senders — InboxRift' };
 
 const getData = async () => {
 	try {

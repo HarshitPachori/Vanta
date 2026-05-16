@@ -1,17 +1,18 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="min-h-dvh bg-(--color-base) flex flex-col">
 			<header className="px-6 py-4 border-b border-(--color-surface-2)">
-				<Link href="/" aria-label="Vanta home" className="flex items-center gap-2 w-fit group">
+				<Link href="/" aria-label="InboxRift home" className="flex items-center gap-2 w-fit group">
 					<span
 						aria-hidden="true"
-						className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent) text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110"
+						className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent-muted) border border-accent-border text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
 					>
-						V
+						<Image src="/icon.svg" alt="InboxRift logo" width={16} height={16} />
 					</span>
-					<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">Vanta</span>
+					<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">InboxRift</span>
 				</Link>
 			</header>
 
@@ -28,7 +29,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
 					</Link>
 					<span>·</span>
 					<Link href="/" className="hover:text-(--color-text-primary) transition-colors duration-150">
-						Back to Vanta
+						Back to InboxRift
 					</Link>
 				</div>
 			</footer>

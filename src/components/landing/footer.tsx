@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/cn';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const FOOTER_LINKS = {
 	Product: [
@@ -39,19 +39,19 @@ export default function Footer() {
 				<div className="grid grid-cols-2 md:grid-cols-5 gap-10">
 					{/* Brand */}
 					<div className="col-span-2">
-						<Link href="/" aria-label="Vanta home" className="flex items-center gap-2.5 group w-fit">
+						<Link href="/" aria-label="InboxRift home" className="flex items-center gap-2.5 group w-fit">
 							<span
 								aria-hidden="true"
-								className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent) text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110"
+								className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent-muted) border border-accent-border text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
 							>
-								V
+								<Image src="/icon.svg" alt="InboxRift logo" width={16} height={16} />
 							</span>
-							<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">Vanta</span>
+							<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">InboxRift</span>
 						</Link>
 						<p className="mt-4 text-sm text-(--color-text-muted) max-w-xs leading-relaxed">
 							Your inbox, finally quiet. Unsubscribe at scale, digest what matters.
 						</p>
-						<p className="mt-5 text-xs text-(--color-text-muted) font-mono">© {new Date().getFullYear()} Vanta</p>
+						<p className="mt-5 text-xs text-(--color-text-muted) font-mono">© {new Date().getFullYear()} InboxRift</p>
 					</div>
 
 					{/* Link columns */}

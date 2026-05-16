@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "vanta",
+	"name": "inboxrift",
 	"main": "./worker.ts",
 	"compatibility_date": "2026-04-16",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -22,14 +22,14 @@
 	// Default production vars — used when deploying without --env flag
 	"vars": {
 		"ENVIRONMENT": "PROD",
-		"CLIENT_BASE_URI": "https://vanta.harshitpachori345.workers.dev",
+		"CLIENT_BASE_URI": "https://inboxrift.harshitpachori345.workers.dev",
 		"RESEND_FROM_EMAIL": "onboarding@resend.dev",
 		"NEXTJS_ENV": "production",
 	},
 
 	"env": {
 		"dev": {
-			"name": "vanta-dev",
+			"name": "inboxrift-dev",
 			"ai": {
 				"binding": "AI",
 			},
@@ -39,7 +39,7 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "vanta-dev",
+					"service": "inboxrift-dev",
 				},
 			],
 			"vars": {
@@ -51,7 +51,7 @@
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "vanta-dev",
+					"database_name": "inboxrift-dev",
 					"database_id": "a3f19b43-8393-41c8-8dce-edbdfa857bd4",
 					"migrations_dir": "./backend/db/migrations",
 				},
@@ -61,25 +61,25 @@
 			},
 			"queues": {
 				"producers": [
-					{ "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-dev" },
-					{ "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-dev" },
-					{ "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-dev" },
+					{ "binding": "SCAN_QUEUE", "queue": "inboxrift-scan-queue-dev" },
+					{ "binding": "UNSUB_QUEUE", "queue": "inboxrift-unsub-queue-dev" },
+					{ "binding": "DIGEST_QUEUE", "queue": "inboxrift-digest-queue-dev" },
 				],
 				"consumers": [
 					{
-						"queue": "vanta-scan-queue-dev",
+						"queue": "inboxrift-scan-queue-dev",
 						"max_batch_size": 10,
 						"max_batch_timeout": 30,
 						"max_retries": 3,
 					},
 					{
-						"queue": "vanta-unsub-queue-dev",
+						"queue": "inboxrift-unsub-queue-dev",
 						"max_batch_size": 10,
 						"max_batch_timeout": 30,
 						"max_retries": 3,
 					},
 					{
-						"queue": "vanta-digest-queue-dev",
+						"queue": "inboxrift-digest-queue-dev",
 						"max_batch_size": 5,
 						"max_batch_timeout": 60,
 						"max_retries": 3,
@@ -89,7 +89,7 @@
 		},
 
 		"prod": {
-			"name": "vanta",
+			"name": "inboxrift",
 			"ai": {
 				"binding": "AI",
 			},
@@ -99,19 +99,19 @@
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
-					"service": "vanta",
+					"service": "inboxrift",
 				},
 			],
 			"vars": {
 				"ENVIRONMENT": "PROD",
-				"CLIENT_BASE_URI": "https://vanta.harshitpachori345.workers.dev",
+				"CLIENT_BASE_URI": "https://inboxrift.harshitpachori345.workers.dev",
 				"RESEND_FROM_EMAIL": "onboarding@resend.dev",
 				"NEXTJS_ENV": "production",
 			},
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "vanta-prod",
+					"database_name": "inboxrift-prod",
 					"database_id": "442b6154-0dda-4bde-9103-94f56c29f7f7",
 					"migrations_dir": "./backend/db/migrations",
 				},
@@ -121,25 +121,25 @@
 			},
 			"queues": {
 				"producers": [
-					{ "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-prod" },
-					{ "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-prod" },
-					{ "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-prod" },
+					{ "binding": "SCAN_QUEUE", "queue": "inboxrift-scan-queue-prod" },
+					{ "binding": "UNSUB_QUEUE", "queue": "inboxrift-unsub-queue-prod" },
+					{ "binding": "DIGEST_QUEUE", "queue": "inboxrift-digest-queue-prod" },
 				],
 				"consumers": [
 					{
-						"queue": "vanta-scan-queue-prod",
+						"queue": "inboxrift-scan-queue-prod",
 						"max_batch_size": 10,
 						"max_batch_timeout": 30,
 						"max_retries": 3,
 					},
 					{
-						"queue": "vanta-unsub-queue-prod",
+						"queue": "inboxrift-unsub-queue-prod",
 						"max_batch_size": 10,
 						"max_batch_timeout": 30,
 						"max_retries": 3,
 					},
 					{
-						"queue": "vanta-digest-queue-prod",
+						"queue": "inboxrift-digest-queue-prod",
 						"max_batch_size": 5,
 						"max_batch_timeout": 60,
 						"max_retries": 3,

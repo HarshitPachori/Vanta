@@ -1,6 +1,6 @@
 'use client';
 
-import { cardSection, cn } from '@/lib/cn';
+import { cn } from '@/lib/cn';
 import { fadeUp, stagger } from '@/lib/motion';
 import { motion } from 'framer-motion';
 import { BarChart2, Clock, Layers, MailX, ShieldCheck, Zap } from 'lucide-react';
@@ -28,7 +28,7 @@ const FEATURES = [
 		icon: Clock,
 		num: '04',
 		title: 'Set and forget',
-		description: 'Configure once. Vanta runs silently in the background. No daily action needed. Just a cleaner inbox.',
+		description: 'Configure once. InboxRift runs silently in the background. No daily action needed. Just a cleaner inbox.',
 	},
 	{
 		icon: ShieldCheck,
