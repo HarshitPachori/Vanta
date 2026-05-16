@@ -1,16 +1,16 @@
 export const dynamic = 'force-dynamic';
 
+import OnboardingClient from '@/components/dashboard/onboarding-client';
+import { sessions, users } from '@backend/db/schema';
+import { getDb } from '@backend/lib/db';
+import { verifyToken } from '@backend/lib/jwt';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { and, eq, gt } from 'drizzle-orm';
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { verifyToken } from '@backend/lib/jwt';
-import { getDb } from '@backend/lib/db';
-import { users, sessions } from '@backend/db/schema';
-import { eq, and, gt } from 'drizzle-orm';
-import type { Metadata } from 'next';
-import OnboardingClient from '@/components/dashboard/onboarding-client';
 
-export const metadata: Metadata = { title: 'Get started — Vanta' };
+export const metadata: Metadata = { title: 'Get started — InboxRift' };
 
 const getUser = async () => {
 	try {
@@ -40,6 +40,7 @@ const getUser = async () => {
 				email: users.email,
 				hasGmailAccess: users.hasGmailAccess,
 				scanStatus: users.scanStatus,
+				onboardingCompleteAt: users.onboardingCompleteAt,
 			})
 			.from(users)
 			.where(eq(users.id, session.userId))
@@ -54,7 +55,7 @@ export default async function OnboardingPage() {
 	if (!user) redirect('/login');
 
 	// already onboarded
-	if (user.hasGmailAccess && user.scanStatus === 'done') {
+	if (user.hasGmailAccess && user.scanStatus === 'done' && user.onboardingCompleteAt !== null) {
 		redirect('/dashboard');
 	}
 

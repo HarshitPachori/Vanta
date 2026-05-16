@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Project Is
 
-**Vanta** — AI Gmail inbox manager. Users connect Gmail (read-only OAuth), app scans inbox, finds/categorizes senders (newsletters, promos, transactional, etc.), lets them bulk unsubscribe + set up digest emails.
+**InboxRift** — AI Gmail inbox manager. Users connect Gmail (read-only OAuth), app scans inbox, finds/categorizes senders (newsletters, promos, transactional, etc.), lets them bulk unsubscribe + set up digest emails.
 
 ## Tech Stack
 

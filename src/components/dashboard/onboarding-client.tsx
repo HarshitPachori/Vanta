@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useTransition, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ScanLine, Layers, CheckCircle, Loader, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cardSection, cn } from '@/lib/cn';
 import { fadeUp, stagger } from '@/lib/motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, CheckCircle, Layers, Loader, Mail, ScanLine } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, useTransition } from 'react';
 
 type Step = 'connect' | 'scan' | 'done';
 
@@ -37,7 +38,7 @@ export default function OnboardingClient({ userName, hasGmailAccess: initialGmai
 	const eventSourceRef = useRef<EventSource | null>(null);
 	const router = useRouter();
 
-	const greeting = userName ? `Welcome, ${userName.split(' ')[0]}` : 'Welcome to Vanta';
+	const greeting = userName ? `Welcome, ${userName.split(' ')[0]}` : 'Welcome to InboxRift';
 
 	const connectSSE = () => {
 		const es = new EventSource('/api/sse/scan');
@@ -67,6 +68,11 @@ export default function OnboardingClient({ userName, hasGmailAccess: initialGmai
 		return () => eventSourceRef.current?.close();
 	}, []);
 
+	const completeOnboarding = async (href: string) => {
+		await fetch('/api/scan/complete', { method: 'POST' });
+		router.push(href);
+	};
+
 	const triggerScan = () => {
 		startTransition(async () => {
 			try {
@@ -88,11 +94,11 @@ export default function OnboardingClient({ userName, hasGmailAccess: initialGmai
 				<Link href="/" className="inline-flex items-center gap-2.5 mb-8 group">
 					<span
 						aria-hidden="true"
-						className="flex h-9 w-9 items-center justify-center rounded-lg bg-(--color-accent) text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110"
+						className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent-muted) border border-accent-border text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
 					>
-						V
+						<Image src="/icon.svg" alt="InboxRift logo" width={16} height={16} />
 					</span>
-					<span className="font-display font-bold text-xl tracking-tight text-(--color-text-primary)">Vanta</span>
+					<span className="font-display font-bold text-xl tracking-tight text-(--color-text-primary)">InboxRift</span>
 				</Link>
 
 				<h1 className="font-display font-black text-3xl text-(--color-text-primary) tracking-tight">{greeting}</h1>
@@ -172,7 +178,7 @@ export default function OnboardingClient({ userName, hasGmailAccess: initialGmai
 						<div>
 							<h2 className="font-display font-bold text-xl text-(--color-text-primary) tracking-tight">Connect your Gmail</h2>
 							<p className="text-sm text-(--color-text-muted) mt-2 leading-relaxed max-w-sm">
-								Vanta needs read access to scan your inbox and detect what's cluttering it. We never store email content.
+								InboxRift needs read access to scan your inbox and detect what's cluttering it. We never store email content.
 							</p>
 						</div>
 
@@ -281,14 +287,12 @@ export default function OnboardingClient({ userName, hasGmailAccess: initialGmai
 						</div>
 
 						<div className="flex flex-col gap-3 w-full">
-							<Button size="lg" className="w-full shadow-(--shadow-glow-sm)">
-								<Link href="/dashboard/senders" className="flex items-center gap-1">
-									Manage senders
-									<ArrowRight size={16} aria-hidden="true" />
-								</Link>
+							<Button size="lg" className="w-full shadow-(--shadow-glow-sm)" onClick={() => completeOnboarding('/dashboard/senders')}>
+								Manage senders
+								<ArrowRight size={16} aria-hidden="true" />
 							</Button>
-							<Button variant="outline" size="lg" className="w-full">
-								<Link href="/dashboard">Go to dashboard</Link>
+							<Button variant="outline" size="lg" className="w-full" onClick={() => completeOnboarding('/dashboard')}>
+								Go to dashboard
 							</Button>
 						</div>
 					</motion.div>

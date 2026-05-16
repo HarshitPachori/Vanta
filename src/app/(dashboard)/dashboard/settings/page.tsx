@@ -3,19 +3,19 @@ export const dynamic = 'force-dynamic';
 import DeleteAccountButton from '@/components/dashboard/delete-account-button';
 import { SessionsList } from '@/components/dashboard/sessions-list';
 import { Button } from '@/components/ui/button';
-import { cardSection, cn, glassAvatar, iconSquare } from '@/lib/cn';
 import { getUser } from '@/lib/auth';
+import { cardSection, cn, glassAvatar, iconSquare } from '@/lib/cn';
 import { sessions, subscriptions } from '@backend/db/schema';
 import { getDb } from '@backend/lib/db';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { and, eq, gt } from 'drizzle-orm';
 import { CheckCircle, Crown, Mail, ShieldCheck } from 'lucide-react';
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Settings — Vanta' };
+export const metadata: Metadata = { title: 'Settings — InboxRift' };
 
 const getData = async () => {
 	try {
@@ -86,7 +86,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 					</h2>
 					<div className="flex items-center gap-4">
 						{user.avatarUrl ? (
-							<img src={user.avatarUrl} alt="" aria-hidden="true" className="h-12 w-12 rounded-full object-cover shrink-0" />
+							<Image src={user.avatarUrl} alt="" aria-hidden="true" className="h-12 w-12 rounded-full object-cover shrink-0" />
 						) : (
 							<span
 								aria-hidden="true"
@@ -173,7 +173,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 						Privacy
 					</h2>
 					<p className="text-xs text-(--color-text-muted) leading-relaxed mb-4">
-						Vanta reads email headers only. No email content is ever stored. Your Gmail tokens are encrypted at rest.
+						InboxRift reads email headers only. No email content is ever stored. Your Gmail tokens are encrypted at rest.
 					</p>
 					<div className="flex items-center gap-2 text-xs text-(--color-success) font-mono">
 						<ShieldCheck size={13} aria-hidden="true" />

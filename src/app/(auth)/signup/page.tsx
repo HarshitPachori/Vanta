@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SignupForm } from '@/components/auth/signup-form';
 import { AlertCircle, CheckCircle } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
 	title: 'Sign up',
-	description: 'Create your free Vanta account.',
+	description: 'Create your free InboxRift account.',
 };
 
 const AUTH_ERRORS: Record<string, string> = {

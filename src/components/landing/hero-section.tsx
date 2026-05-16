@@ -1,9 +1,9 @@
 'use client';
-import React, { Suspense } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import HeroAnimation from '@/components/landing/hero-animation';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Suspense } from 'react';
 
 export default function HeroSection() {
 	return (
@@ -67,7 +67,7 @@ export default function HeroSection() {
 						transition={{ duration: 0.5, ease: [0, 0, 0.2, 1], delay: 0.12 }}
 						className=" sm:text-lg text-(--color-text-muted) leading-relaxed max-w-lg"
 					>
-						Vanta scans your Gmail, kills the noise, and rebuilds what you actually want to read into one clean daily digest.
+						InboxRift scans your Gmail, kills the noise, and rebuilds what you actually want to read into one clean daily digest.
 					</motion.p>
 
 					{/* CTA */}

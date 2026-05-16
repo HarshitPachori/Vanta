@@ -22,6 +22,13 @@
 			"when": 1777813477175,
 			"tag": "0002_grey_whizzer",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1778938206443,
+			"tag": "0003_futuristic_legion",
+			"breakpoints": true
 		}
 	]
 }

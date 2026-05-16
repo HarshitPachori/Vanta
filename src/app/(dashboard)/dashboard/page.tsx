@@ -1,17 +1,17 @@
-import { redirect } from 'next/navigation';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getDb } from '@backend/lib/db';
-import { senders } from '@backend/db/schema';
-import { eq, and, count } from 'drizzle-orm';
+import ScanStatus from '@/components/dashboard/scan-status';
+import { Button } from '@/components/ui/button';
 import { getUser, requireOnboarding } from '@/lib/auth';
+import { cardSection, cn, iconSquare, metricCard } from '@/lib/cn';
+import { senders } from '@backend/db/schema';
+import { getDb } from '@backend/lib/db';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { and, count, eq } from 'drizzle-orm';
+import { BarChart2, CheckCircle, Layers, Mail, Trash2 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Mail, Trash2, Layers, BarChart2, CheckCircle } from 'lucide-react';
-import ScanStatus from '@/components/dashboard/scan-status';
-import { cardSection, metricCard, cn, iconSquare } from '@/lib/cn';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Overview — Vanta' };
+export const metadata: Metadata = { title: 'Overview — InboxRift' };
 
 const getData = async () => {
 	try {
@@ -123,7 +123,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 							Connect your Gmail
 						</h2>
 						<p className="mt-2 text-sm text-(--color-text-muted) max-w-sm leading-relaxed">
-							Vanta needs read access to scan your inbox and detect what's cluttering it.
+							InboxRift needs read access to scan your inbox and detect what's cluttering it.
 						</p>
 					</div>
 					<Button className="shadow-(--shadow-glow-sm)">

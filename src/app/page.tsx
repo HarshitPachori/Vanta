@@ -13,7 +13,7 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
-	title: 'Vanta — Your inbox, finally quiet.',
+	title: 'InboxRift — Your inbox, finally quiet.',
 	alternates: { canonical: '/' },
 };
 

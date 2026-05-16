@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
 import { LoginForm } from '@/components/auth/login-form';
 import { AlertCircle } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
 	title: 'Log in',
-	description: 'Log in to your Vanta account.',
+	description: 'Log in to your InboxRift account.',
 };
 
 const AUTH_ERRORS: Record<string, string> = {
@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 		<article className="w-full max-w-sm">
 			<header className="text-center mb-8">
 				<h1 className="text-2xl font-display font-bold text-(--color-text-primary) tracking-tight">Welcome back</h1>
-				<p className="mt-2 text-sm text-(--color-text-secondary)">Log in to your Vanta account</p>
+				<p className="mt-2 text-sm text-(--color-text-secondary)">Log in to your InboxRift account</p>
 			</header>
 
 			{errorMessage && (

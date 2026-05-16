@@ -1,17 +1,17 @@
 export const dynamic = 'force-dynamic';
 
-import { redirect } from 'next/navigation';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getDb } from '@backend/lib/db';
-import { auditLogs } from '@backend/db/schema';
-import { eq, desc } from 'drizzle-orm';
-import { getUser, requireOnboarding } from '@/lib/auth';
-import { cn, cardSection, tableHeaderCell, tableRow, tableCell, pillSuccess, pillDanger, pillNeutral, pillAccent } from '@/lib/cn';
-import { CheckCircle, XCircle, RefreshCw, Trash2, Layers, Mail, Send } from 'lucide-react';
-import type { Metadata } from 'next';
 import EmptyState from '@/components/dashboard/empty-state';
+import { getUser, requireOnboarding } from '@/lib/auth';
+import { cardSection, cn, pillAccent, pillDanger, pillNeutral, pillSuccess, tableCell, tableHeaderCell, tableRow } from '@/lib/cn';
+import { auditLogs } from '@backend/db/schema';
+import { getDb } from '@backend/lib/db';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { desc, eq } from 'drizzle-orm';
+import { CheckCircle, Layers, Mail, RefreshCw, Send, Trash2, XCircle } from 'lucide-react';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Activity — Vanta' };
+export const metadata: Metadata = { title: 'Activity — InboxRift' };
 
 type AuditAction = (typeof auditLogs.$inferSelect)['action'];
 
