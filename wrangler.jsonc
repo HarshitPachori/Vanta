@@ -1,136 +1,151 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "vanta",
-  "main": "./worker.ts",
-  "compatibility_date": "2026-05-03",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "binding": "ASSETS",
-    "directory": ".open-next/assets",
-  },
-  "images": {
-    "binding": "IMAGES",
-  },
-  "observability": {
-    "enabled": true,
-  },
-  "upload_source_maps": true,
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "vanta",
+	"main": "./worker.ts",
+	"compatibility_date": "2026-04-16",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".open-next/assets",
+	},
+	"images": {
+		"binding": "IMAGES",
+	},
+	"observability": {
+		"enabled": true,
+	},
+	"upload_source_maps": true,
+	"ai": {
+		"binding": "AI",
+	},
 
-  // Default production vars — used when deploying without --env flag
-  "vars": {
-    "ENVIRONMENT": "PROD",
-    "CLIENT_BASE_URI": "https://vanta.harshitpachori345.workers.dev",
-    "RESEND_FROM_EMAIL": "onboarding@resend.dev",
-    "NEXTJS_ENV": "production",
-  },
+	// Default production vars — used when deploying without --env flag
+	"vars": {
+		"ENVIRONMENT": "PROD",
+		"CLIENT_BASE_URI": "https://vanta.harshitpachori345.workers.dev",
+		"RESEND_FROM_EMAIL": "onboarding@resend.dev",
+		"NEXTJS_ENV": "production",
+	},
 
-  "env": {
-    "dev": {
-      "name": "vanta-dev",
-      "services": [
-        {
-          "binding": "WORKER_SELF_REFERENCE",
-          "service": "vanta-dev",
-        },
-      ],
-      "vars": {
-        "ENVIRONMENT": "DEV",
-        "CLIENT_BASE_URI": "http://localhost:8787",
-        "RESEND_FROM_EMAIL": "onboarding@resend.dev",
-        "NEXTJS_ENV": "development",
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "vanta-dev",
-          "database_id": "a3f19b43-8393-41c8-8dce-edbdfa857bd4",
-          "migrations_dir": "./backend/db/migrations",
-        },
-      ],
-      "triggers": {
-        "crons": ["*/15 * * * *"],
-      },
-      "queues": {
-        "producers": [
-          { "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-dev" },
-          { "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-dev" },
-          { "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-dev" },
-        ],
-        "consumers": [
-          {
-            "queue": "vanta-scan-queue-dev",
-            "max_batch_size": 10,
-            "max_batch_timeout": 30,
-            "max_retries": 3,
-          },
-          {
-            "queue": "vanta-unsub-queue-dev",
-            "max_batch_size": 10,
-            "max_batch_timeout": 30,
-            "max_retries": 3,
-          },
-          {
-            "queue": "vanta-digest-queue-dev",
-            "max_batch_size": 5,
-            "max_batch_timeout": 60,
-            "max_retries": 3,
-          },
-        ],
-      },
-    },
+	"env": {
+		"dev": {
+			"name": "vanta-dev",
+			"ai": {
+				"binding": "AI",
+			},
+			"images": {
+				"binding": "IMAGES",
+			},
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "vanta-dev",
+				},
+			],
+			"vars": {
+				"ENVIRONMENT": "DEV",
+				"CLIENT_BASE_URI": "http://localhost:8787",
+				"RESEND_FROM_EMAIL": "onboarding@resend.dev",
+				"NEXTJS_ENV": "development",
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "vanta-dev",
+					"database_id": "a3f19b43-8393-41c8-8dce-edbdfa857bd4",
+					"migrations_dir": "./backend/db/migrations",
+				},
+			],
+			"triggers": {
+				"crons": ["*/15 * * * *"],
+			},
+			"queues": {
+				"producers": [
+					{ "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-dev" },
+					{ "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-dev" },
+					{ "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-dev" },
+				],
+				"consumers": [
+					{
+						"queue": "vanta-scan-queue-dev",
+						"max_batch_size": 10,
+						"max_batch_timeout": 30,
+						"max_retries": 3,
+					},
+					{
+						"queue": "vanta-unsub-queue-dev",
+						"max_batch_size": 10,
+						"max_batch_timeout": 30,
+						"max_retries": 3,
+					},
+					{
+						"queue": "vanta-digest-queue-dev",
+						"max_batch_size": 5,
+						"max_batch_timeout": 60,
+						"max_retries": 3,
+					},
+				],
+			},
+		},
 
-    "prod": {
-      "name": "vanta",
-      "services": [
-        {
-          "binding": "WORKER_SELF_REFERENCE",
-          "service": "vanta",
-        },
-      ],
-      "vars": {
-        "ENVIRONMENT": "PROD",
-        "CLIENT_BASE_URI": "https://vanta.app",
-        "RESEND_FROM_EMAIL": "hello@vanta.app",
-        "NEXTJS_ENV": "production",
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "vanta-prod",
-          "database_id": "442b6154-0dda-4bde-9103-94f56c29f7f7",
-          "migrations_dir": "./backend/db/migrations",
-        },
-      ],
-      "triggers": {
-        "crons": ["*/15 * * * *"],
-      },
-      "queues": {
-        "producers": [
-          { "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-prod" },
-          { "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-prod" },
-          { "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-prod" },
-        ],
-        "consumers": [
-          {
-            "queue": "vanta-scan-queue-prod",
-            "max_batch_size": 10,
-            "max_batch_timeout": 30,
-            "max_retries": 3,
-          },
-          {
-            "queue": "vanta-unsub-queue-prod",
-            "max_batch_size": 10,
-            "max_batch_timeout": 30,
-            "max_retries": 3,
-          },
-          {
-            "queue": "vanta-digest-queue-prod",
-            "max_batch_size": 5,
-            "max_batch_timeout": 60,
-            "max_retries": 3,
-          },
-        ],
-      },
-    },
-  },
+		"prod": {
+			"name": "vanta",
+			"ai": {
+				"binding": "AI",
+			},
+			"images": {
+				"binding": "IMAGES",
+			},
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "vanta",
+				},
+			],
+			"vars": {
+				"ENVIRONMENT": "PROD",
+				"CLIENT_BASE_URI": "https://vanta.harshitpachori345.workers.dev",
+				"RESEND_FROM_EMAIL": "onboarding@resend.dev",
+				"NEXTJS_ENV": "production",
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "vanta-prod",
+					"database_id": "442b6154-0dda-4bde-9103-94f56c29f7f7",
+					"migrations_dir": "./backend/db/migrations",
+				},
+			],
+			"triggers": {
+				"crons": ["*/15 * * * *"],
+			},
+			"queues": {
+				"producers": [
+					{ "binding": "SCAN_QUEUE", "queue": "vanta-scan-queue-prod" },
+					{ "binding": "UNSUB_QUEUE", "queue": "vanta-unsub-queue-prod" },
+					{ "binding": "DIGEST_QUEUE", "queue": "vanta-digest-queue-prod" },
+				],
+				"consumers": [
+					{
+						"queue": "vanta-scan-queue-prod",
+						"max_batch_size": 10,
+						"max_batch_timeout": 30,
+						"max_retries": 3,
+					},
+					{
+						"queue": "vanta-unsub-queue-prod",
+						"max_batch_size": 10,
+						"max_batch_timeout": 30,
+						"max_retries": 3,
+					},
+					{
+						"queue": "vanta-digest-queue-prod",
+						"max_batch_size": 5,
+						"max_batch_timeout": 60,
+						"max_retries": 3,
+					},
+				],
+			},
+		},
+	},
 }

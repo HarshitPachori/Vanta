@@ -1,43 +1,35 @@
-const RESEND_API = "https://api.resend.com/emails";
+const RESEND_API = 'https://api.resend.com/emails';
 
 type SendEmailParams = {
-  to: string;
-  from: string;
-  subject: string;
-  html: string;
-  text?: string;
+	to: string;
+	from: string;
+	subject: string;
+	html: string;
+	text?: string;
 };
 
-export const sendEmail = async (
-  params: SendEmailParams,
-  apiKey: string,
-): Promise<boolean> => {
-  const res = await fetch(RESEND_API, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: params.from,
-      to: [params.to],
-      subject: params.subject,
-      html: params.html,
-      text: params.text,
-    }),
-  });
-  console.log({ res });
+export const sendEmail = async (params: SendEmailParams, apiKey: string): Promise<boolean> => {
+	const res = await fetch(RESEND_API, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			from: params.from,
+			to: [params.to],
+			subject: params.subject,
+			html: params.html,
+			text: params.text,
+		}),
+	});
+	console.log({ res });
 
-  return res.ok;
+	return res.ok;
 };
 
-export const sendPasswordResetEmail = async (
-  to: string,
-  resetUrl: string,
-  apiKey: string,
-  from: string,
-): Promise<boolean> => {
-  const html = `
+export const sendPasswordResetEmail = async (to: string, resetUrl: string, apiKey: string, from: string): Promise<boolean> => {
+	const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,19 +97,16 @@ export const sendPasswordResetEmail = async (
 </html>
   `.trim();
 
-  const text = [
-    "Reset your Vanta password",
-    "",
-    "We received a request to reset your password.",
-    "Click this link to reset it (expires in 1 hour):",
-    "",
-    resetUrl,
-    "",
-    "If you didn't request this, ignore this email.",
-  ].join("\n");
+	const text = [
+		'Reset your Vanta password',
+		'',
+		'We received a request to reset your password.',
+		'Click this link to reset it (expires in 1 hour):',
+		'',
+		resetUrl,
+		'',
+		"If you didn't request this, ignore this email.",
+	].join('\n');
 
-  return sendEmail(
-    { to, from, subject: "Reset your Vanta password", html, text },
-    apiKey,
-  );
+	return sendEmail({ to, from, subject: 'Reset your Vanta password', html, text }, apiKey);
 };

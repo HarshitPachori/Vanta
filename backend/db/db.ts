@@ -1,7 +1,7 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { getDbInstance } from ".";
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { getDbInstance } from '.';
 
-export default function getDb(){
-  const {env} = getCloudflareContext();
-  return getDbInstance(env.DB!);
+export default function getDb() {
+	const { env } = getCloudflareContext();
+	return getDbInstance(env.DB!);
 }

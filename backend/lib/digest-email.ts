@@ -1,28 +1,31 @@
 type DigestItem = {
-  from:    string
-  subject: string
-  date:    string
-  url:     string
-}
+	from: string;
+	subject: string;
+	date: string;
+	url: string;
+	summary?: string;
+};
 
 type BuildDigestEmailParams = {
-  userName:    string | null
-  digestName:  string
-  items:       DigestItem[]
-  deliveryDate: string
-  clientBaseUrl: string
-}
+	userName: string | null;
+	digestName: string;
+	items: DigestItem[];
+	deliveryDate: string;
+	clientBaseUrl: string;
+};
 
 export const buildDigestEmail = ({
-  userName,
-  digestName,
-  items,
-  deliveryDate,
-  clientBaseUrl
+	userName,
+	digestName,
+	items,
+	deliveryDate,
+	clientBaseUrl,
 }: BuildDigestEmailParams): { html: string; text: string } => {
-  const greeting = userName ? `Hi ${userName.split(" ")[0]}` : "Hi there"
+	const greeting = userName ? `Hi ${userName.split(' ')[0]}` : 'Hi there';
 
-  const itemsHtml = items.map(item => `
+	const itemsHtml = items
+		.map(
+			(item) => `
     <tr>
       <td style="padding: 16px 0; border-bottom: 1px solid #27272B;">
         <table width="100%" cellpadding="0" cellspacing="0">
@@ -31,18 +34,19 @@ export const buildDigestEmail = ({
               <p style="margin: 0 0 4px 0; font-family: sans-serif; font-size: 11px; color: #71717A; text-transform: uppercase; letter-spacing: 0.08em;">
                 ${escapeHtml(item.from)}
               </p>
-              
+              <a
                 href="${item.url}"
                 style="font-family: sans-serif; font-size: 15px; font-weight: 600; color: #F4F4F5; text-decoration: none; line-height: 1.4;"
               >
                 ${escapeHtml(item.subject)}
               </a>
+              ${item.summary ? `<p style="margin: 6px 0 0 0; font-family: sans-serif; font-size: 13px; color: #A1A1AA; line-height: 1.5;">${escapeHtml(item.summary)}</p>` : ''}
               <p style="margin: 4px 0 0 0; font-family: sans-serif; font-size: 12px; color: #71717A;">
                 ${item.date}
               </p>
             </td>
             <td style="width: 80px; text-align: right; vertical-align: middle;">
-              
+              <a
                 href="${item.url}"
                 style="display: inline-block; padding: 6px 12px; background: #1C1C1F; border: 1px solid #27272B; border-radius: 6px; font-family: sans-serif; font-size: 11px; color: #A1A1AA; text-decoration: none;"
               >
@@ -53,9 +57,11 @@ export const buildDigestEmail = ({
         </table>
       </td>
     </tr>
-  `).join("")
+  `,
+		)
+		.join('');
 
-  const html = `
+	const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,7 +107,7 @@ export const buildDigestEmail = ({
                 ${greeting},
               </p>
               <p style="margin: 6px 0 0 0; font-family: sans-serif; font-size: 14px; color: #71717A;">
-                Here's your ${escapeHtml(digestName)} — ${items.length} ${items.length === 1 ? "email" : "emails"} worth reading.
+                Here's your ${escapeHtml(digestName)} — ${items.length} ${items.length === 1 ? 'email' : 'emails'} worth reading.
               </p>
             </td>
           </tr>
@@ -137,24 +143,19 @@ export const buildDigestEmail = ({
   </table>
 </body>
 </html>
-  `.trim()
+  `.trim();
 
-  const text = [
-    `${greeting},`,
-    `Your ${digestName} — ${items.length} emails:`,
-    "",
-    ...items.map(i => `• ${i.from}: ${i.subject}\n  ${i.url}`),
-    "",
-    "Sent by Vanta",
-  ].join("\n")
+	const text = [
+		`${greeting},`,
+		`Your ${digestName} — ${items.length} emails:`,
+		'',
+		...items.map((i) => `• ${i.from}: ${i.subject}${i.summary ? `\n  ${i.summary}` : ''}\n  ${i.url}`),
+		'',
+		'Sent by Vanta',
+	].join('\n');
 
-  return { html, text }
-}
+	return { html, text };
+};
 
 const escapeHtml = (str: string) =>
-  str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;")
+	str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
