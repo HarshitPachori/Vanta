@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Mail, Layers, Settings, LogOut, Menu, X, Crown, ScrollText } from 'lucide-react';
 import { cn, glassAvatar, navItem, navItemActive } from '@/lib/cn';
 import { EASE_SMOOTH } from '@/lib/motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Crown, Layers, LayoutDashboard, LogOut, Mail, Menu, ScrollText, Settings, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 type User = {
 	id: string;
@@ -65,7 +66,7 @@ export default function DashboardShell({ user, children }: { user: User; childre
 		<div className="border-t border-(--color-border) pt-4 mt-4">
 			<div className="flex items-center gap-3 px-3 py-2 mb-1">
 				{user.avatarUrl ? (
-					<img src={user.avatarUrl} alt="" aria-hidden="true" className={cn(glassAvatar, 'h-8 w-8 rounded-full object-cover shrink-0')} />
+					<Image src={user.avatarUrl} alt="" aria-hidden="true" className={cn(glassAvatar, 'h-8 w-8 rounded-full object-cover shrink-0')} />
 				) : (
 					<span
 						aria-hidden="true"
@@ -115,11 +116,11 @@ export default function DashboardShell({ user, children }: { user: User; childre
 				<Link href="/dashboard" className="flex items-center gap-2.5 group mb-8 px-3">
 					<span
 						aria-hidden="true"
-						className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent) text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110"
+						className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent-muted) border border-accent-border text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
 					>
-						V
+						<Image src="/icon.svg" alt="InboxRift logo" width={16} height={16} />
 					</span>
-					<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">Vanta</span>
+					<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">InboxRift</span>
 				</Link>
 
 				<NavLinks />
@@ -138,7 +139,7 @@ export default function DashboardShell({ user, children }: { user: User; childre
 					>
 						V
 					</span>
-					<span className="font-display font-bold tracking-tight text-(--color-text-primary)">Vanta</span>
+					<span className="font-display font-bold tracking-tight text-(--color-text-primary)">InboxRift</span>
 				</Link>
 				<button
 					type="button"
@@ -189,7 +190,7 @@ export default function DashboardShell({ user, children }: { user: User; childre
 								>
 									V
 								</span>
-								<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">Vanta</span>
+								<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">InboxRift</span>
 							</Link>
 							<NavLinks />
 							<UserBlock />

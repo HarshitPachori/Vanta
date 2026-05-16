@@ -22,6 +22,7 @@ export const users = sqliteTable(
 		createdAt: integer('created_at').notNull(),
 		updatedAt: integer('updated_at').notNull(),
 		deletedAt: integer('deleted_at'),
+		onboardingCompleteAt: integer('onboarding_complete_at'),
 	},
 	(t) => [uniqueIndex('users_email_idx').on(t.email)],
 );

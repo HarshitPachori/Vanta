@@ -19,6 +19,7 @@ export type AuthUser = {
 	createdAt: number | null;
 	plan: string;
 	sessionId: string;
+	onboardingCompletedAt: number | null;
 };
 
 // Cached per request — layout + requireOnboarding + every page getData share one fetch
@@ -54,6 +55,7 @@ export const getUser = cache(async (): Promise<AuthUser | null> => {
 					scanStatus: users.scanStatus,
 					lastScannedAt: users.lastScannedAt,
 					createdAt: users.createdAt,
+					onboardingCompletedAt: users?.onboardingCompleteAt,
 				})
 				.from(users)
 				.where(eq(users.id, session.userId))
@@ -75,7 +77,7 @@ export const getAuthStatus = async (): Promise<{ loggedIn: boolean; onboarded: b
 	const user = await getUser();
 	return {
 		loggedIn: !!user,
-		onboarded: !!(user?.hasGmailAccess && user?.scanStatus === 'done'),
+		onboarded: !!(user?.hasGmailAccess && user?.scanStatus === 'done' && user?.onboardingCompletedAt !== null),
 	};
 };
 
@@ -86,5 +88,5 @@ export const requireOnboarding = async (): Promise<void> => {
 		redirect('/login');
 		return;
 	}
-	if (!(user.hasGmailAccess && user.scanStatus === 'done')) redirect('/onboarding');
+	if (!(user.hasGmailAccess && user.scanStatus === 'done' && user.onboardingCompletedAt !== null)) redirect('/onboarding');
 };

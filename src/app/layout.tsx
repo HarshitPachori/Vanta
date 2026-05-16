@@ -1,21 +1,23 @@
 import { bricolage, dmSans, geistMono } from '@/lib/fonts';
 import type { Metadata, Viewport } from 'next';
+// @ts-ignore: side-effect import of CSS without type declarations
 import './globals.css';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vanta.app';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://inboxrift.app';
 
 export const metadata: Metadata = {
 	metadataBase: new URL(BASE_URL),
 	title: {
-		default: 'Vanta — Your inbox, finally quiet.',
-		template: '%s | Vanta',
+		default: 'InboxRift — Your inbox, finally quiet.',
+		template: '%s | InboxRift',
 	},
-	description: 'Vanta scans your Gmail, kills newsletters you never read, and rebuilds your favourite ones into one clean daily digest.',
-	applicationName: 'Vanta',
-	authors: [{ name: 'Vanta' }],
+	description:
+		'InboxRift scans your Gmail, kills newsletters you never read, and rebuilds your favourite ones into one clean daily digest.',
+	applicationName: 'InboxRift',
+	authors: [{ name: 'InboxRift' }],
 	keywords: ['inbox cleaner', 'email unsubscribe', 'newsletter digest', 'gmail cleaner', 'inbox zero', 'email management', 'vanta'],
-	creator: 'Vanta',
-	publisher: 'Vanta',
+	creator: 'InboxRift',
+	publisher: 'InboxRift',
 	verification: {
 		google: '03ZQtVOwJ2NDIpFO04v4exgY0F6F7YfVMHJpgySUr9s',
 	},
@@ -33,23 +35,23 @@ export const metadata: Metadata = {
 		type: 'website',
 		locale: 'en_US',
 		url: BASE_URL,
-		siteName: 'Vanta',
-		title: 'Vanta — Your inbox, finally quiet.',
+		siteName: 'InboxRift',
+		title: 'InboxRift — Your inbox, finally quiet.',
 		description: 'Scan your Gmail, kill the noise, get one clean daily digest of the emails that actually matter.',
 		images: [
 			{
-				url: '/og.png',
+				url: '/og',
 				width: 1200,
 				height: 630,
-				alt: 'Vanta — inbox cleaner and digest rebuilder',
+				alt: 'InboxRift — inbox cleaner and digest rebuilder',
 			},
 		],
 	},
 	twitter: {
 		card: 'summary_large_image',
-		title: 'Vanta — Your inbox, finally quiet.',
+		title: 'InboxRift — Your inbox, finally quiet.',
 		description: 'Scan your Gmail, kill the noise, get one clean daily digest.',
-		images: ['/og.png'],
+		images: ['/og'],
 		creator: '@vantaapp',
 	},
 	icons: {

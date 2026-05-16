@@ -1,16 +1,16 @@
 export const dynamic = 'force-dynamic';
 
-import { redirect } from 'next/navigation';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getDb } from '@backend/lib/db';
-import { digests, digestSenders, senders } from '@backend/db/schema';
-import { eq, desc } from 'drizzle-orm';
-import type { Metadata } from 'next';
 import DigestClient from '@/components/dashboard/digest-client';
 import { getUser, requireOnboarding } from '@/lib/auth';
 import { cardSection, cn } from '@/lib/cn';
+import { digests, digestSenders, senders } from '@backend/db/schema';
+import { getDb } from '@backend/lib/db';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { desc, eq } from 'drizzle-orm';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Digest — Vanta' };
+export const metadata: Metadata = { title: 'Digest — InboxRift' };
 
 const getData = async () => {
 	try {

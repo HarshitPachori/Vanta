@@ -1,10 +1,9 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { LogIn, ScanLine, Sliders, Inbox } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { fadeUp } from '@/lib/motion';
+import { motion } from 'framer-motion';
+import { Inbox, LogIn, ScanLine, Sliders } from 'lucide-react';
 
 const STEPS = [
 	{
@@ -17,7 +16,7 @@ const STEPS = [
 		icon: ScanLine,
 		step: '02',
 		title: 'We scan your inbox',
-		description: "Vanta analyses 90 days of email headers, groups every sender by type, and surfaces what's cluttering your inbox.",
+		description: "InboxRift analyses 90 days of email headers, groups every sender by type, and surfaces what's cluttering your inbox.",
 	},
 	{
 		icon: Sliders,
@@ -101,7 +100,7 @@ export default function HowItWorks() {
 							clarity in minutes
 						</h2>
 						<p className="text-sm text-(--color-text-muted) leading-relaxed max-w-sm">
-							Four steps. Under two minutes to set up. Then Vanta runs silently every day while you focus on everything else.
+							Four steps. Under two minutes to set up. Then InboxRift runs silently every day while you focus on everything else.
 						</p>
 
 						{/* Mini stat */}
@@ -119,7 +118,7 @@ export default function HowItWorks() {
 					</div>
 
 					{/* Right — timeline */}
-					<ol aria-label="Steps to get started with Vanta" className="flex flex-col mt-2">
+					<ol aria-label="Steps to get started with InboxRift" className="flex flex-col mt-2">
 						{STEPS.map(({ icon, step, title, description }, i) => (
 							<Step key={step} icon={icon} step={step} title={title} description={description} index={i} />
 						))}

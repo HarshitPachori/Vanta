@@ -87,7 +87,7 @@ export const buildDigestEmail = ({
                           <span style="font-family: sans-serif; font-size: 16px; font-weight: 800; color: white; line-height: 32px;">V</span>
                         </td>
                         <td style="padding-left: 10px;">
-                          <span style="font-family: sans-serif; font-size: 18px; font-weight: 700; color: #F4F4F5; letter-spacing: -0.02em;">Vanta</span>
+                          <span style="font-family: sans-serif; font-size: 18px; font-weight: 700; color: #F4F4F5; letter-spacing: -0.02em;">InboxRift</span>
                         </td>
                       </tr>
                     </table>
@@ -132,7 +132,7 @@ export const buildDigestEmail = ({
           <tr>
             <td style="padding-top: 32px;">
               <p style="margin: 0; font-family: monospace; font-size: 11px; color: #3F3F46; text-align: center;">
-                Sent by Vanta · <a href="${clientBaseUrl}/dashboard/digest" style="color: #3F3F46;">Manage digest</a>
+                Sent by InboxRift · <a href="${clientBaseUrl}/dashboard/digest" style="color: #3F3F46;">Manage digest</a>
               </p>
             </td>
           </tr>
@@ -151,7 +151,7 @@ export const buildDigestEmail = ({
 		'',
 		...items.map((i) => `• ${i.from}: ${i.subject}${i.summary ? `\n  ${i.summary}` : ''}\n  ${i.url}`),
 		'',
-		'Sent by Vanta',
+		'Sent by InboxRift',
 	].join('\n');
 
 	return { html, text };

@@ -1,4 +1,4 @@
-# Vanta
+# InboxRift
 
 Gmail inbox manager. Connect your Gmail, scan your inbox, identify senders, bulk unsubscribe, and set up digest emails.
 

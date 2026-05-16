@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
 import { EASE_SMOOTH } from '@/lib/motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const NAV_LINKS = [
 	{ label: 'Features', href: '/#features' },
@@ -51,14 +52,14 @@ export default function Nav() {
 			<div className="mx-auto max-w-6xl px-5 sm:px-8">
 				<div className="flex h-16 items-center justify-between">
 					{/* Logo */}
-					<Link href="/" aria-label="Vanta home" className="flex items-center gap-2.5 group">
+					<Link href="/" aria-label="InboxRift home" className="flex items-center gap-2.5 group">
 						<span
 							aria-hidden="true"
-							className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent) text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
+							className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--color-accent-muted) border border-accent-border text-white text-sm font-bold font-display transition-all duration-200 group-hover:scale-110 group-hover:rotate-3"
 						>
-							V
+							<Image src="/icon.svg" alt="InboxRift logo" width={16} height={16} />
 						</span>
-						<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">Vanta</span>
+						<span className="font-display font-bold text-lg tracking-tight text-(--color-text-primary)">InboxRift</span>
 					</Link>
 
 					{/* Desktop nav */}

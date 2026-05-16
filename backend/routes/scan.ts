@@ -35,6 +35,13 @@ scan.post('/', requireAuth, async (c) => {
 	return c.json({ ok: true, status: 'scanning' });
 });
 
+scan.post('/complete', requireAuth, async (c) => {
+	const userId = c.get('userId');
+	const db = getDb(c.env.DB);
+	await db.update(users).set({ onboardingCompleteAt: now(), updatedAt: now() }).where(eq(users.id, userId));
+	return c.json({ ok: true });
+});
+
 scan.get('/status', requireAuth, async (c) => {
 	const userId = c.get('userId');
 	const db = getDb(c.env.DB);

@@ -6,13 +6,13 @@ const content = `# Terms of Service
 
 ## 1. Acceptance of Terms
 
-By accessing or using Vanta ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the Service.
+By accessing or using InboxRift ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the Service.
 
 ---
 
 ## 2. Description of Service
 
-Vanta is an AI-powered Gmail inbox manager that:
+InboxRift is an AI-powered Gmail inbox manager that:
 
 - Scans your Gmail inbox to identify and categorize email senders
 - Processes unsubscribe requests on your behalf
@@ -22,7 +22,7 @@ Vanta is an AI-powered Gmail inbox manager that:
 
 ## 3. Eligibility
 
-You must be at least 13 years old to use the Service. By using Vanta, you represent that you meet this requirement and that all information you provide is accurate.
+You must be at least 13 years old to use the Service. By using InboxRift, you represent that you meet this requirement and that all information you provide is accurate.
 
 ---
 
@@ -32,7 +32,7 @@ You are responsible for:
 
 - Maintaining the confidentiality of your account credentials
 - All activity that occurs under your account
-- Notifying us immediately of any unauthorized access at [support@vanta.app](mailto:support@vanta.app)
+- Notifying us immediately of any unauthorized access at [support@inboxrift.com](mailto:support@inboxrift.com)
 
 We reserve the right to suspend or terminate accounts that violate these Terms.
 
@@ -40,7 +40,7 @@ We reserve the right to suspend or terminate accounts that violate these Terms.
 
 ## 5. Gmail Access & Permissions
 
-By connecting your Gmail account, you grant Vanta permission to:
+By connecting your Gmail account, you grant InboxRift permission to:
 
 - Read email headers (sender, subject, date) to identify and categorize senders
 - Create Gmail inbox filters when processing unsubscribe requests on your behalf
@@ -65,24 +65,24 @@ You agree not to:
 
 ## 7. Unsubscribe Processing
 
-Vanta processes unsubscribe requests by either:
+InboxRift processes unsubscribe requests by either:
 
 - Calling the \`List-Unsubscribe\` URL found in the email header, or
 - Creating a Gmail inbox filter to route future emails from that sender
 
-Unsubscribe results depend on compliance by the email sender. Vanta cannot guarantee that all unsubscribe requests will be honored by third-party senders. We are not responsible for continued emails from senders who do not honor opt-out requests.
+Unsubscribe results depend on compliance by the email sender. InboxRift cannot guarantee that all unsubscribe requests will be honored by third-party senders. We are not responsible for continued emails from senders who do not honor opt-out requests.
 
 ---
 
 ## 8. Digest Emails
 
-Digest emails are delivered via **Resend**, our email delivery provider. By enabling digest emails, you consent to receiving emails from Vanta at your registered email address. You can pause or delete your digest at any time from the dashboard.
+Digest emails are delivered via **Resend**, our email delivery provider. By enabling digest emails, you consent to receiving emails from InboxRift at your registered email address. You can pause or delete your digest at any time from the dashboard.
 
 ---
 
 ## 9. Intellectual Property
 
-All content, trademarks, and software related to the Service are the property of Vanta. You may not copy, distribute, or create derivative works without our explicit written permission.
+All content, trademarks, and software related to the Service are the property of InboxRift. You may not copy, distribute, or create derivative works without our explicit written permission.
 
 ---
 
@@ -94,7 +94,7 @@ THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLI
 
 ## 11. Limitation of Liability
 
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, VANTA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE.
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, inboxrift SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE.
 
 ---
 
@@ -120,9 +120,9 @@ These Terms are governed by the laws of the State of Texas, United States, witho
 
 For questions about these Terms:
 
-**Vanta**
+**InboxRift**
 
-Email: [support@vanta.app](mailto:support@vanta.app)
+Email: [support@inboxrift.com](mailto:support@inboxrift.com)
 `;
 
 export default content;
